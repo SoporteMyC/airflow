@@ -2,6 +2,11 @@ airflow.db
 *.csv
 *.pyc
 *.log
+*.dccache
+*.xlsx
+*.vscode
+output
+dag_processor_manager
 __pycache__
 venv
 logs

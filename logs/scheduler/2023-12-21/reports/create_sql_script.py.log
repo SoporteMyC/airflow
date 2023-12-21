@@ -223,3 +223,18 @@ Traceback (most recent call last):
 NameError: name 'hour_changer' is not defined
 [2023-12-21T13:14:31.249-0300] {processor.py:842} WARNING - No viable dags retrieved from /home/myc-ti-2/airflow/dags/reports/create_sql_script.py
 [2023-12-21T13:14:31.361-0300] {processor.py:183} INFO - Processing /home/myc-ti-2/airflow/dags/reports/create_sql_script.py took 0.137 seconds
+[2023-12-21T13:39:00.375-0300] {processor.py:161} INFO - Started process (PID=13572) to work on /home/myc-ti-2/airflow/dags/reports/create_sql_script.py
+[2023-12-21T13:39:00.376-0300] {processor.py:830} INFO - Processing file /home/myc-ti-2/airflow/dags/reports/create_sql_script.py for tasks to queue
+[2023-12-21T13:39:00.377-0300] {logging_mixin.py:188} INFO - [2023-12-21T13:39:00.377-0300] {dagbag.py:538} INFO - Filling up the DagBag from /home/myc-ti-2/airflow/dags/reports/create_sql_script.py
+[2023-12-21T13:39:00.391-0300] {logging_mixin.py:188} INFO - [2023-12-21T13:39:00.391-0300] {create_sql_script.py:18} INFO - <class 'Exception'>
+[2023-12-21T13:39:00.393-0300] {logging_mixin.py:188} INFO - [2023-12-21T13:39:00.391-0300] {dagbag.py:348} ERROR - Failed to import: /home/myc-ti-2/airflow/dags/reports/create_sql_script.py
+Traceback (most recent call last):
+  File "/home/myc-ti-2/airflow_workspace/airflow_env/lib/python3.10/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/myc-ti-2/airflow/dags/reports/create_sql_script.py", line 1411, in <module>
+    schedule_interval=hour_changer("00 10 * * *  "),
+NameError: name 'hour_changer' is not defined
+[2023-12-21T13:39:00.393-0300] {processor.py:842} WARNING - No viable dags retrieved from /home/myc-ti-2/airflow/dags/reports/create_sql_script.py
+[2023-12-21T13:39:00.511-0300] {processor.py:183} INFO - Processing /home/myc-ti-2/airflow/dags/reports/create_sql_script.py took 0.140 seconds

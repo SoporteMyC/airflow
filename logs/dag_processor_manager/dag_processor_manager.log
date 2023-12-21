@@ -2061,3 +2061,17 @@ File Path                                                                       
 /home/myc-ti-2/airflow_workspace/airflow_env/lib/python3.10/site-packages/airflow/example_dags/example_subdag_operator.py                                                           3           0  0.31s           2023-12-21T16:14:59
 /home/myc-ti-2/airflow_workspace/airflow_env/lib/python3.10/site-packages/airflow/example_dags/example_datasets.py                                                                  6           0  0.31s           2023-12-21T16:14:14
 ================================================================================
+[2023-12-21T13:39:00.278-0300] {manager.py:469} INFO - Processing files using up to 1 processes at a time 
+[2023-12-21T13:39:00.283-0300] {manager.py:470} INFO - Process each file at most once every 30 seconds
+[2023-12-21T13:39:00.283-0300] {manager.py:471} INFO - Checking for new files in /home/myc-ti-2/airflow/dags every 300 seconds
+[2023-12-21T13:39:00.283-0300] {manager.py:738} INFO - Searching for files in /home/myc-ti-2/airflow/dags
+[2023-12-21T13:39:00.293-0300] {manager.py:741} INFO - There are 1 files in /home/myc-ti-2/airflow/dags
+[2023-12-21T13:39:00.571-0300] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                 PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/home/myc-ti-2/airflow/dags/reports/create_sql_script.py                           0           1  0.21s           2023-12-21T16:39:00
+================================================================================
+[2023-12-21T13:39:37.993-0300] {manager.py:451} INFO - Exiting gracefully upon receiving signal 15

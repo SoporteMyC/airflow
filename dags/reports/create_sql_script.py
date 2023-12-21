@@ -12,10 +12,6 @@ import os
 warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)
 
-try:
-    from dags_utils.dags_utils import hour_changer
-except:
-    logger.info(Exception)
 
 default_args = {
     "owner": "adrian",
@@ -1408,7 +1404,7 @@ with DAG(
     "create-sql-script-hab",
     default_args=default_args,
     description="crea el script sql de informe total con fechas actualizadas.",
-    schedule_interval=hour_changer("00 10 * * *  "),
+    schedule_interval="00 7 * * *  ",
     max_active_runs=1,
     concurrency=4,
     tags=["informes", "sql server"],

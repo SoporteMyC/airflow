@@ -1,1 +1,6 @@
 airflow.db
+*.csv
+*.pyc
+*.log
+__pycache__
+venv

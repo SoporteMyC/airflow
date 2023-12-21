@@ -1400,6 +1400,9 @@ tables = [
     "#tmp_cliente"
 ]
 
+    def eliminar_tablas_temporales():
+        
+
 with DAG(
     "create-sql-script-hab",
     default_args=default_args,
@@ -1419,13 +1422,14 @@ with DAG(
         python_callable=crear_sql_hab,
         op_kwargs={'cliente': 'PRO'}
     )
-    for table in tables:
+    
+    """    for table in tables:
         drop_tables = SQLExecuteQueryOperator(
-        task_id=f"drop_table_{table}",
+        task_id=f"drop_table_{table[1:]}",
         sql=f"USE WEBCOB; DROP TABLE {table};",
         split_statements=True,
         return_last=False,
-)
+        )"""
 
 
     crear_sql_script_hab

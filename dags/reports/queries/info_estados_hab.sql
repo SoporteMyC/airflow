@@ -16,15 +16,15 @@ WHERE flg_rut_cliente=dbo.getCapital()
   INSERT INTO #tmp_cliente (rut_cliente)
 VALUES (@rut_cliente) IF @flg_consideraPiloto='S' BEGIN IF @rut_cliente=dbo.getHabitat() BEGIN INSERT INTO #tmp_cliente (rut_cliente) VALUES (dbo.getPilotoHabitat()) END END /*
         (select rut_cliente from #tmp_cliente)
-        */ SELECT @periodo = max(res_periodo) FROM ut_cob_resolucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente)--and isnull(res_juicio,'N')='N'
+        */ SELECT @periodo = max(res_periodo) FROM ut_cob_resolucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente)--and isnull(res_juicio,'N')='N'
  SET @periodo = 202310 SELECT @periodo ultimo_periodo --set @periodo=202308
- SELECT @maxFecha = max(flg_insert) FROM ut_cob_distibucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) SELECT @maxFecha2 = max(flg_insert) FROM ut_cob_distibucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert<@maxFecha SELECT @maxFecha3 = max(flg_insert) FROM ut_cob_distibucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert<@maxFecha2 --select @maxFecha = @maxFecha2
+ SELECT @maxFecha = max(flg_insert) FROM ut_cob_distibucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) SELECT @maxFecha2 = max(flg_insert) FROM ut_cob_distibucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert<@maxFecha SELECT @maxFecha3 = max(flg_insert) FROM ut_cob_distibucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert<@maxFecha2 --select @maxFecha = @maxFecha2
  --select @maxFecha2
- CREATE TABLE #tmp_pads(codigo int, monto numeric(18), rut_deudor int, periodo int, fecha_info date, fecha_reg date, nud int, monto_for varchar(20)) CREATE TABLE #tmp_estados(estado varchar(5)) CREATE TABLE #tmp_periodos(periodo int) CREATE TABLE #tmp_periodos_vigente(periodo int) CREATE TABLE #tmp_gestionesvalidas(rut_deudor int, cod_gesdeudor int) CREATE TABLE #tmp_gestiones_hab (cod_gesdeudor int, cod_gestion varchar(2), cod_est_gestion varchar(2), rut_deudor int, fec_gestion datetime, telefono varchar(200)) CREATE TABLE #tmp_gestiones_cap (cod_gesdeudor int, cod_gestion varchar(2), cod_est_gestion varchar(2), rut_deudor int, fec_gestion datetime, telefono varchar(200)) CREATE TABLE #tmp_gestiones_pro (cod_gesdeudor int, cod_gestion varchar(2), cod_est_gestion varchar(2), rut_deudor int, fec_gestion datetime, telefono varchar(200)) CREATE TABLE #tmp_cambiosestado([id] [numeric](18, 0) NULL, [rut_cliente] [int] NULL, [res_codigo] [int] NULL, [situacion_anterior] [varchar](5) NULL, [situacion_nueva] [varchar](5) NULL, [rut_usuario] [int] NULL, [fec_insert] [datetime] NULL, [fec_psr] [date] NULL, [fec_pad] [date] NULL) CREATE TABLE #tmp_gesdeudor([cod_gesdeudor] [int] NULL, [cod_gestion] [char](3) NULL, [cod_est_gestion] [char](3) NULL, [flg_rut_deudor] [varchar](11) NULL, [flg_dv_deudor] [char](1) NULL, [flg_rut_usuario] [varchar](11) NULL, [flg_dv_usuario] [char](1) NULL, [cod_login] [varchar](12) NULL, [fec_gestion] [datetime] NULL, [txt_det_ges] [varchar](500) NULL, [rut_cliente] [int] NULL, [txt_numerollamada] [varchar](100) NULL, [txt_periodos] [varchar](500) NULL, [fec_compromiso] [date] NULL, [flg_recepcionsms] [char](1) NULL, [flg_email_enviado] [char](1) NULL, [flg_email_estado] [char](2) NULL, [flg_email_contactar] [char](1) NULL, [txt_mail] [varchar](100) NULL, [NUD] NUMERIC(18) NULL, [MONTO] NUMERIC(18) NULL) SELECT @fechaCargaPeriodo= max(res_fec_ing) FROM ut_cob_resolucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) --select @fechaCargaPeriodo = '2020-05-01'
- SELECT @fechaCargaPeriodo fechaCargaPeriodo PRINT '*** 01 CREACION TABLAS ***' PRINT getdate() INSERT INTO #tmp_periodos_vigente SELECT DISTINCT periodo FROM ut_cob_periodos_m WHERE rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND flg_asignacion='S' CREATE TABLE #tmp_dis(codigo int, rut int, dis char(1)) CREATE TABLE #tmp_reso(rut int, monto numeric(18), periodo int, situacion varchar(5) , ejecutiva varchar(250) ,ejecutiva_a0 varchar(250) ,ejecutiva_a1 varchar(250) ,ejecutiva_a2 varchar(250) ,rut_ejecutiva_0 int ,rut_ejecutiva_1 int ,rut_ejecutiva_2 int) CREATE TABLE #tmp_salida(rut int , p_202301 numeric(18) , p_202302 numeric(18) , p_202303 numeric(18) , p_202304 numeric(18) , p_202305 numeric(18) , p_202306 numeric(18) , p_202307 numeric(18) , p_202308 numeric(18) , p_202309 numeric(18) , p_202310 numeric(18) , p_202311 numeric(18) , p_202312 numeric(18) , n_202301 numeric(18) , n_202302 numeric(18) , n_202303 numeric(18) , n_202304 numeric(18) , n_202305 numeric(18) , n_202306 numeric(18) , n_202307 numeric(18) , n_202308 numeric(18) , n_202309 numeric(18) , n_202310 numeric(18) , n_202311 numeric(18) , n_202312 numeric(18) ,situacion_01 varchar(MAX) ,situacion_02 varchar(MAX) ,situacion_03 varchar(MAX) ,situacion_04 varchar(MAX) ,situacion_05 varchar(MAX) ,situacion_06 varchar(MAX) ,situacion_07 varchar(MAX) ,situacion_08 varchar(MAX) ,situacion_09 varchar(MAX) ,situacion_10 varchar(MAX) ,situacion_11 varchar(MAX) ,situacion_12 varchar(MAX) ,leybustos_01 varchar(1) ,leybustos_02 varchar(1) ,leybustos_03 varchar(1) ,leybustos_04 varchar(1) ,leybustos_05 varchar(1) ,leybustos_06 varchar(1) ,leybustos_07 varchar(1) ,leybustos_08 varchar(1) ,leybustos_09 varchar(1) ,leybustos_10 varchar(1) ,leybustos_11 varchar(1) ,leybustos_12 varchar(1) ,situacion varchar(MAX) ,nuevo char(1) ,ultPeriodo int ,fec_pago date , ultEstado varchar(MAX) , ejecutiva varchar(250) , fonos_cap varchar(MAX) , fonos_pro varchar(MAX) , fonos_hab varchar(MAX) , correos varchar(MAX) ,estado_cn varchar(100) , ejecutiva_a0 varchar(250) , ejecutiva_a1 varchar(250) , ejecutiva_a2 varchar(250) , ejecutiva_ge varchar(250) , rut_ejecutiva_ge int ,can int ,u_pe int ,res_juicio int ,compromiso_pago int ,fec_compromiso date ,cod_gesdeudor int ,cod_gestion varchar(2) ,cod_est_gestion varchar(2) ,txt_gestion varchar(500) ,txt_estado varchar(500) ,can_correos int ,can_correos_vi int ,can_llamadas int ,can_llamadaSIVAL int ,can_llamadaNOVAL int ,fecha_gestion date ,carga_especial int ,carga_mixta char(1) /*nueva informacion*/ /*PROVIDA*/ , cod_gesdeudor_afp_provida int , cod_gestion_afp_provida varchar(2) , est_gestion_afp_provida varchar(2) , fec_gestion_afp_provida datetime , tel_gestion_afp_provida varchar(200) , tel_01_provida varchar(200) , estado_afp_provida varchar(200) , txt_gestion_afp_provida varchar(200) , can_pe_provida int , can_ne_provida int , can_pad_provida int /*HABITAT*/ , cod_gesdeudor_afp_habitat int , cod_gestion_afp_habitat varchar(2) , est_gestion_afp_habitat varchar(2) , fec_gestion_afp_habitat datetime , tel_gestion_afp_habitat varchar(200) , tel_01_habitat varchar(200) , estado_afp_habitat varchar(200) , txt_gestion_afp_habitat varchar(200) , can_pe_habitat int , can_ne_habitat int , can_pad_habitat int /*CAPITAL*/ , cod_gesdeudor_afp_capital int , cod_gestion_afp_capital varchar(2) , est_gestion_afp_capital varchar(2) , fec_gestion_afp_capital datetime , tel_gestion_afp_capital varchar(200) , tel_01_capital varchar(200) , estado_afp_capital varchar(200) , txt_gestion_afp_capital varchar(200) , can_pe_capital int , can_ne_capital int , can_pad_capital int /*BUSQUEDA*/ , cod_gesdeudor_busqueda int , cod_gestion_busqueda varchar(2) , est_gestion_busqueda varchar(2) , fec_gestion_busqueda datetime , txt_gestion_busqueda varchar(200) , carga_ultima_remesa char(1) , fec_carga_periodo_pag date , tiene_cca char(1) , ult_periodo_cca int , es_dnp int , es_car int , es_cai int , es_cam int , periodo_carga int ,sms_enviado char(1) ,correos_vi char(1) ,gestion_valida_cam char(1) ,gestion_valida_eje char(1)) PRINT '*** 01.1 INSERTA PERIODOS ***' DECLARE @periodo_1 int DECLARE @periodo_2 int DECLARE @periodo_3 int INSERT INTO #tmp_periodos --select 202303
+ CREATE TABLE #tmp_pads(codigo int, monto numeric(18), rut_deudor int, periodo int, fecha_info date, fecha_reg date, nud int, monto_for varchar(20)) CREATE TABLE #tmp_estados(estado varchar(5)) CREATE TABLE #tmp_periodos(periodo int) CREATE TABLE #tmp_periodos_vigente(periodo int) CREATE TABLE #tmp_gestionesvalidas(rut_deudor int, cod_gesdeudor int) CREATE TABLE #tmp_gestiones_hab (cod_gesdeudor int, cod_gestion varchar(2), cod_est_gestion varchar(2), rut_deudor int, fec_gestion datetime, telefono varchar(200)) CREATE TABLE #tmp_gestiones_cap (cod_gesdeudor int, cod_gestion varchar(2), cod_est_gestion varchar(2), rut_deudor int, fec_gestion datetime, telefono varchar(200)) CREATE TABLE #tmp_gestiones_pro (cod_gesdeudor int, cod_gestion varchar(2), cod_est_gestion varchar(2), rut_deudor int, fec_gestion datetime, telefono varchar(200)) CREATE TABLE #tmp_cambiosestado([id] [numeric](18, 0) NULL, [rut_cliente] [int] NULL, [res_codigo] [int] NULL, [situacion_anterior] [varchar](5) NULL, [situacion_nueva] [varchar](5) NULL, [rut_usuario] [int] NULL, [fec_insert] [datetime] NULL, [fec_psr] [date] NULL, [fec_pad] [date] NULL) CREATE TABLE #tmp_gesdeudor([cod_gesdeudor] [int] NULL, [cod_gestion] [char](3) NULL, [cod_est_gestion] [char](3) NULL, [flg_rut_deudor] [varchar](11) NULL, [flg_dv_deudor] [char](1) NULL, [flg_rut_usuario] [varchar](11) NULL, [flg_dv_usuario] [char](1) NULL, [cod_login] [varchar](12) NULL, [fec_gestion] [datetime] NULL, [txt_det_ges] [varchar](500) NULL, [rut_cliente] [int] NULL, [txt_numerollamada] [varchar](100) NULL, [txt_periodos] [varchar](500) NULL, [fec_compromiso] [date] NULL, [flg_recepcionsms] [char](1) NULL, [flg_email_enviado] [char](1) NULL, [flg_email_estado] [char](2) NULL, [flg_email_contactar] [char](1) NULL, [txt_mail] [varchar](100) NULL, [NUD] NUMERIC(18) NULL, [MONTO] NUMERIC(18) NULL) SELECT @fechaCargaPeriodo= max(res_fec_ing) FROM ut_cob_resolucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente)--select @fechaCargaPeriodo = '2020-05-01'
+ SELECT @fechaCargaPeriodo fechaCargaPeriodo PRINT '*** 01 CREACION TABLAS ***' PRINT getdate() INSERT INTO #tmp_periodos_vigente SELECT DISTINCT periodo FROM ut_cob_periodos_m WHERE rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND flg_asignacion='S' CREATE TABLE #tmp_dis(codigo int, rut int, dis char(1)) CREATE TABLE #tmp_reso(rut int, monto numeric(18), periodo int, situacion varchar(5) , ejecutiva varchar(250) ,ejecutiva_a0 varchar(250) ,ejecutiva_a1 varchar(250) ,ejecutiva_a2 varchar(250) ,rut_ejecutiva_0 int ,rut_ejecutiva_1 int ,rut_ejecutiva_2 int) CREATE TABLE #tmp_salida(rut int , p_202301 numeric(18) , p_202302 numeric(18) , p_202303 numeric(18) , p_202304 numeric(18) , p_202305 numeric(18) , p_202306 numeric(18) , p_202307 numeric(18) , p_202308 numeric(18) , p_202309 numeric(18) , p_202310 numeric(18) , p_202311 numeric(18) , p_202312 numeric(18) , n_202301 numeric(18) , n_202302 numeric(18) , n_202303 numeric(18) , n_202304 numeric(18) , n_202305 numeric(18) , n_202306 numeric(18) , n_202307 numeric(18) , n_202308 numeric(18) , n_202309 numeric(18) , n_202310 numeric(18) , n_202311 numeric(18) , n_202312 numeric(18) ,situacion_01 varchar(MAX) ,situacion_02 varchar(MAX) ,situacion_03 varchar(MAX) ,situacion_04 varchar(MAX) ,situacion_05 varchar(MAX) ,situacion_06 varchar(MAX) ,situacion_07 varchar(MAX) ,situacion_08 varchar(MAX) ,situacion_09 varchar(MAX) ,situacion_10 varchar(MAX) ,situacion_11 varchar(MAX) ,situacion_12 varchar(MAX) ,leybustos_01 varchar(1) ,leybustos_02 varchar(1) ,leybustos_03 varchar(1) ,leybustos_04 varchar(1) ,leybustos_05 varchar(1) ,leybustos_06 varchar(1) ,leybustos_07 varchar(1) ,leybustos_08 varchar(1) ,leybustos_09 varchar(1) ,leybustos_10 varchar(1) ,leybustos_11 varchar(1) ,leybustos_12 varchar(1) ,situacion varchar(MAX) ,nuevo char(1) ,ultPeriodo int ,fec_pago date , ultEstado varchar(MAX) , ejecutiva varchar(250) , fonos_cap varchar(MAX) , fonos_pro varchar(MAX) , fonos_hab varchar(MAX) , correos varchar(MAX) ,estado_cn varchar(100) , ejecutiva_a0 varchar(250) , ejecutiva_a1 varchar(250) , ejecutiva_a2 varchar(250) , ejecutiva_ge varchar(250) , rut_ejecutiva_ge int ,can int ,u_pe int ,res_juicio int ,compromiso_pago int ,fec_compromiso date ,cod_gesdeudor int ,cod_gestion varchar(2) ,cod_est_gestion varchar(2) ,txt_gestion varchar(500) ,txt_estado varchar(500) ,can_correos int ,can_correos_vi int ,can_llamadas int ,can_llamadaSIVAL int ,can_llamadaNOVAL int ,fecha_gestion date ,carga_especial int ,carga_mixta char(1) /*nueva informacion*/ /*PROVIDA*/ , cod_gesdeudor_afp_provida int , cod_gestion_afp_provida varchar(2) , est_gestion_afp_provida varchar(2) , fec_gestion_afp_provida datetime , tel_gestion_afp_provida varchar(200) , tel_01_provida varchar(200) , estado_afp_provida varchar(200) , txt_gestion_afp_provida varchar(200) , can_pe_provida int , can_ne_provida int , can_pad_provida int /*HABITAT*/ , cod_gesdeudor_afp_habitat int , cod_gestion_afp_habitat varchar(2) , est_gestion_afp_habitat varchar(2) , fec_gestion_afp_habitat datetime , tel_gestion_afp_habitat varchar(200) , tel_01_habitat varchar(200) , estado_afp_habitat varchar(200) , txt_gestion_afp_habitat varchar(200) , can_pe_habitat int , can_ne_habitat int , can_pad_habitat int /*CAPITAL*/ , cod_gesdeudor_afp_capital int , cod_gestion_afp_capital varchar(2) , est_gestion_afp_capital varchar(2) , fec_gestion_afp_capital datetime , tel_gestion_afp_capital varchar(200) , tel_01_capital varchar(200) , estado_afp_capital varchar(200) , txt_gestion_afp_capital varchar(200) , can_pe_capital int , can_ne_capital int , can_pad_capital int /*BUSQUEDA*/ , cod_gesdeudor_busqueda int , cod_gestion_busqueda varchar(2) , est_gestion_busqueda varchar(2) , fec_gestion_busqueda datetime , txt_gestion_busqueda varchar(200) , carga_ultima_remesa char(1) , fec_carga_periodo_pag date , tiene_cca char(1) , ult_periodo_cca int , es_dnp int , es_car int , es_cai int , es_cam int , periodo_carga int ,sms_enviado char(1) ,correos_vi char(1) ,gestion_valida_cam char(1) ,gestion_valida_eje char(1)) PRINT '*** 01.1 INSERTA PERIODOS ***' DECLARE @periodo_1 int DECLARE @periodo_2 int DECLARE @periodo_3 int INSERT INTO #tmp_periodos --select 202303
  SELECT splitdata FROM dbo.Split(@periodos,',') ORDER BY id PRINT '*** 01.2 INSERTA PERIODOS ok ***' --select * from #tmp_periodos
  PRINT '*** 01.3 estados ***' INSERT INTO #tmp_estados SELECT splitdata FROM dbo.Split(@estados,',') ORDER BY id --select * from #tmp_periodos
- PRINT '*** 02 INSERTA RESOLUCIONES ***' PRINT getdate()/*2019-01-27*/ SELECT 'tmp_periodos', * FROM #tmp_periodos IF @tipoInfo='T' BEGIN SELECT 'TOTAL' INSERT INTO #tmp_reso (rut,monto,periodo,situacion) SELECT res_rut,sum(res_monto),res_periodo, res_situacion FROM ut_cob_resolucion_t r WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND res_periodo in (SELECT periodo FROM #tmp_periodos) --and res_codigo in (select p.res_codigo from pagos_previos p)
+ PRINT '*** 02 INSERTA RESOLUCIONES ***' PRINT getdate()/*2019-01-27*/ SELECT 'tmp_periodos', * FROM #tmp_periodos IF @tipoInfo='T' BEGIN SELECT 'TOTAL' INSERT INTO #tmp_reso (rut,monto,periodo,situacion) SELECT res_rut,sum(res_monto),res_periodo, res_situacion FROM ut_cob_resolucion_t r WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND res_periodo IN (SELECT periodo FROM #tmp_periodos)--and res_codigo in (select p.res_codigo from pagos_previos p)
  --and res_situacion not in ('CCA','ODE')
  --and res_rut = 76964450
  /*	and res_nud  in (
@@ -72,12 +72,12 @@ VALUES (@rut_cliente) IF @flg_consideraPiloto='S' BEGIN IF @rut_cliente=dbo.getH
         */ UPDATE #tmp_reso SET rut_ejecutiva_1 = (SELECT rut_usuario FROM webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,1)) WHERE isnull(rut_ejecutiva_1,0)=0 --(select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha2 and rut_deudor = #tmp_reso.rut)
  UPDATE #tmp_reso SET rut_ejecutiva_2 = (SELECT rut_usuario FROM webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,2)) WHERE isnull(rut_ejecutiva_2,0)=0 --(select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha3 and rut_deudor = #tmp_reso.rut)
  /*revisa si existen reasignaciones*/ --select * from #tmp_reso where rut =86454800
- SELECT @periodo_1 = max(periodo) FROM ut_cob_distibucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert = @maxFecha SELECT @periodo_2 = max(periodo) FROM ut_cob_distibucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert = @maxFecha AND periodo<@periodo_1 SELECT @periodo_3 = max(periodo) FROM ut_cob_distibucion_t WHERE flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert = @maxFecha AND periodo<@periodo_2 /*
+ SELECT @periodo_1 = max(periodo) FROM ut_cob_distibucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert = @maxFecha SELECT @periodo_2 = max(periodo) FROM ut_cob_distibucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert = @maxFecha AND periodo<@periodo_1 SELECT @periodo_3 = max(periodo) FROM ut_cob_distibucion_t WHERE flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND flg_insert = @maxFecha AND periodo<@periodo_2 /*
         select @periodo_1
         ,@periodo_2
         ,@periodo_3
-        */ UPDATE #tmp_reso SET rut_ejecutiva_2 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_2) WHERE #tmp_reso.situacion iN ('PAD','PSR') AND periodo=@periodo_3 UPDATE #tmp_reso SET rut_ejecutiva_1 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1) WHERE #tmp_reso.situacion iN ('PAD','PSR') AND periodo=@periodo_2 UPDATE #tmp_reso SET rut_ejecutiva_0 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0) WHERE #tmp_reso.situacion iN ('PAD','PSR') AND periodo=@periodo_1 --select 'PAD', * from #tmp_reso where rut =86454800
- UPDATE #tmp_reso SET rut_ejecutiva_2 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente in (SELECT rut_cliente FROM #tmp_cliente) AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_3 AND r.res_situacion IN ('NE','PE') )) ) ),rut_ejecutiva_2) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_3 UPDATE #tmp_reso SET rut_ejecutiva_1 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente= @rut_cliente AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_2 AND r.res_situacion IN ('NE','PE') )) ) ),rut_ejecutiva_1) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_2 UPDATE #tmp_reso SET rut_ejecutiva_0 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente= @rut_cliente AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_1 AND r.res_situacion IN ('NE','PE') AND res_fecha>=@maxFecha )) )),rut_ejecutiva_0) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_1 DECLARE @rut_cliente2 int SET @rut_cliente2=dbo.getpilotohabitat() IF EXISTS (SELECT 1 FROM #tmp_cliente WHERE rut_cliente=dbo.getpilotohabitat()) BEGIN UPDATE #tmp_reso SET rut_ejecutiva_0 = (SELECT rut_usuario FROM webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente2,#tmp_reso.rut,0)) WHERE isnull(rut_ejecutiva_0,0)=0 /*
+        */ UPDATE #tmp_reso SET rut_ejecutiva_2 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_2) WHERE #tmp_reso.situacion IN ('PAD','PSR') AND periodo=@periodo_3 UPDATE #tmp_reso SET rut_ejecutiva_1 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1) WHERE #tmp_reso.situacion IN ('PAD','PSR') AND periodo=@periodo_2 UPDATE #tmp_reso SET rut_ejecutiva_0 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0) WHERE #tmp_reso.situacion IN ('PAD','PSR') AND periodo=@periodo_1 --select 'PAD', * from #tmp_reso where rut =86454800
+ UPDATE #tmp_reso SET rut_ejecutiva_2 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente IN (SELECT rut_cliente FROM #tmp_cliente) AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_3 AND r.res_situacion IN ('NE','PE') )) ) ),rut_ejecutiva_2) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_3 UPDATE #tmp_reso SET rut_ejecutiva_1 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente= @rut_cliente AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_2 AND r.res_situacion IN ('NE','PE') )) ) ),rut_ejecutiva_1) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_2 UPDATE #tmp_reso SET rut_ejecutiva_0 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente= @rut_cliente AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_1 AND r.res_situacion IN ('NE','PE') AND res_fecha>=@maxFecha )) )),rut_ejecutiva_0) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_1 DECLARE @rut_cliente2 int SET @rut_cliente2=dbo.getpilotohabitat() IF EXISTS (SELECT 1 FROM #tmp_cliente WHERE rut_cliente=dbo.getpilotohabitat()) BEGIN UPDATE #tmp_reso SET rut_ejecutiva_0 = (SELECT rut_usuario FROM webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente2,#tmp_reso.rut,0)) WHERE isnull(rut_ejecutiva_0,0)=0 /*
             (select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha and rut_deudor = #tmp_reso.rut ) -- and cod_grupo = 99)
 
             select * from EjecutivaDeudorxRutDatos(@rut_cliente,86454800)
@@ -88,7 +88,7 @@ VALUES (@rut_cliente) IF @flg_consideraPiloto='S' BEGIN IF @rut_cliente=dbo.getH
             select @periodo_1
             ,@periodo_2
             ,@periodo_3
-            */ UPDATE #tmp_reso SET rut_ejecutiva_2 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente2 AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_2) WHERE #tmp_reso.situacion iN ('PAD','PSR') AND periodo=@periodo_3 UPDATE #tmp_reso SET rut_ejecutiva_1 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente2 AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1) WHERE #tmp_reso.situacion iN ('PAD','PSR') AND periodo=@periodo_2 UPDATE #tmp_reso SET rut_ejecutiva_0 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente2 AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0) WHERE #tmp_reso.situacion iN ('PAD','PSR') AND periodo=@periodo_1 --select 'PAD', * from #tmp_reso where rut =86454800
+            */ UPDATE #tmp_reso SET rut_ejecutiva_2 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente2 AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_2) WHERE #tmp_reso.situacion IN ('PAD','PSR') AND periodo=@periodo_3 UPDATE #tmp_reso SET rut_ejecutiva_1 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente2 AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1) WHERE #tmp_reso.situacion IN ('PAD','PSR') AND periodo=@periodo_2 UPDATE #tmp_reso SET rut_ejecutiva_0 = isnull((SELECT top 1 d.usr_rut FROM ut_cob_desistidosUsuario_t d WHERE d.rut_cliente=@rut_cliente2 AND d.rut_deudor=#tmp_reso.rut AND d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0) WHERE #tmp_reso.situacion IN ('PAD','PSR') AND periodo=@periodo_1 --select 'PAD', * from #tmp_reso where rut =86454800
  UPDATE #tmp_reso SET rut_ejecutiva_2 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente = @rut_cliente2 AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_3 AND r.res_situacion IN ('NE','PE') )) ) ),rut_ejecutiva_2) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_3 UPDATE #tmp_reso SET rut_ejecutiva_1 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente= @rut_cliente2 AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_2 AND r.res_situacion IN ('NE','PE') )) ) ),rut_ejecutiva_1) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_2 UPDATE #tmp_reso SET rut_ejecutiva_0 = isnull((SELECT TOP 1 flg_rut_usuario FROM ut_cob_usuarios_m WHERE flg_user =(SELECT top 1 pag_usuario FROM ut_cob_pago_p WHERE pag_liq= (SELECT top 1 neg_numero FROM ut_cob_negocio_t WHERE neg_n_sist=(SELECT max(res_codigo) FROM ut_cob_resolucion_t r WHERE r.flg_rut_cliente= @rut_cliente2 AND r.res_rut=#tmp_reso.rut AND r.res_periodo=@periodo_1 AND r.res_situacion IN ('NE','PE') AND res_fecha>=@maxFecha )) )),rut_ejecutiva_0) WHERE #tmp_reso.situacion IN ('NE','PE') AND periodo=@periodo_1 END --select 'NEPE',* from #tmp_reso where rut =86454800
  /*
         select 'flg_rut_usuario', flg_rut_usuario from ut_cob_usuarios_m where flg_user =(
@@ -129,21 +129,21 @@ SELECT res_codigo,
        res_rut,
        'N'
 FROM ut_cob_resolucion_t
-WHERE res_rut in
+WHERE res_rut IN
     (SELECT rut
      FROM #tmp_salida)
-  AND res_periodo in
+  AND res_periodo IN
     (SELECT periodo
      FROM #tmp_periodos)
-  AND flg_rut_cliente in
+  AND flg_rut_cliente IN
     (SELECT rut_cliente
-     FROM #tmp_cliente) --and isnull(res_juicio,'N')='N'
+     FROM #tmp_cliente)--and isnull(res_juicio,'N')='N'
  PRINT '*** 07 MARCA DISTRIBUIDO***' PRINT getdate()
   UPDATE #tmp_dis
-  SET dis='S' WHERE codigo in
+  SET dis='S' WHERE codigo IN
     (SELECT res_codigo
      FROM ut_cob_distibucion_t
-     WHERE flg_insert='2018-09-30') --select * from #tmp_dis where dis='S'
+     WHERE flg_insert='2018-09-30')--select * from #tmp_dis where dis='S'
  --select * from #tmp_dis where dis='N'
  --delete from #tmp_salida where rut in (select rut from #tmp_dis where dis='S')
 
@@ -166,7 +166,7 @@ WHERE res_rut in
   SET nuevo= CASE isnull(
                            (SELECT count(*)
                             FROM ut_cob_resolucion_t
-                            WHERE flg_rut_cliente in
+                            WHERE flg_rut_cliente IN
                                 (SELECT rut_cliente
                                  FROM #tmp_cliente)
                               AND res_rut = #tmp_salida.rut
@@ -179,7 +179,7 @@ WHERE res_rut in
   SET can= isnull(
                     (SELECT count(*)
                      FROM ut_cob_resolucion_t
-                     WHERE flg_rut_cliente in
+                     WHERE flg_rut_cliente IN
                          (SELECT rut_cliente
                           FROM #tmp_cliente)
                        AND res_rut = #tmp_salida.rut
@@ -189,7 +189,7 @@ WHERE res_rut in
   SET u_pe= isnull(
                      (SELECT max(res_periodo)
                       FROM ut_cob_resolucion_t
-                      WHERE flg_rut_cliente in
+                      WHERE flg_rut_cliente IN
                           (SELECT rut_cliente
                            FROM #tmp_cliente)
                         AND res_rut = #tmp_salida.rut
@@ -199,11 +199,11 @@ WHERE res_rut in
   SET ultPeriodo= isnull(
                            (SELECT max(res_periodo)
                             FROM ut_cob_resolucion_t
-                            WHERE flg_rut_cliente in
+                            WHERE flg_rut_cliente IN
                                 (SELECT rut_cliente
                                  FROM #tmp_cliente)
                               AND res_rut = #tmp_salida.rut
-                              AND res_situacion in ('PE',
+                              AND res_situacion IN ('PE',
                                                     'PAD',
                                                     'PSR',
                                                     'NE')
@@ -213,11 +213,11 @@ WHERE res_rut in
   SET fec_pago= isnull(
                          (SELECT max(res_fecha)
                           FROM ut_cob_resolucion_t
-                          WHERE flg_rut_cliente in
+                          WHERE flg_rut_cliente IN
                               (SELECT rut_cliente
                                FROM #tmp_cliente)
                             AND res_rut = #tmp_salida.rut
-                            AND res_situacion in ('PE',
+                            AND res_situacion IN ('PE',
                                                   'PAD',
                                                   'PSR')
                             AND res_periodo = ultPeriodo --and isnull(res_juicio,'N')='N'
@@ -227,10 +227,10 @@ WHERE res_rut in
   SET fec_pago= (
                    (SELECT max(neg_f_negocio)
                     FROM ut_cob_negocio_t
-                    WHERE neg_numero in (
+                    WHERE neg_numero IN (
                                            (SELECT DISTINCT res_codigo
                                             FROM ut_cob_resolucion_t
-                                            WHERE flg_rut_cliente in
+                                            WHERE flg_rut_cliente IN
                                                 (SELECT rut_cliente
                                                  FROM #tmp_cliente)
                                               AND res_rut = #tmp_salida.rut
@@ -242,7 +242,7 @@ WHERE res_rut in
                           (SELECT estados=STUFF(
                                                   (SELECT ', ' + res_situacion
                                                    FROM ut_cob_resolucion_t
-                                                   WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                   WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                        (SELECT rut_cliente
                                                         FROM #tmp_cliente)
                                                      AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -251,7 +251,7 @@ WHERE res_rut in
                                                    GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                    FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                            FROM ut_cob_resolucion_t r
-                           WHERE r.flg_rut_cliente in
+                           WHERE r.flg_rut_cliente IN
                                (SELECT rut_cliente
                                 FROM #tmp_cliente)
                              AND r.res_rut =#tmp_salida.rut
@@ -265,7 +265,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -274,7 +274,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -288,7 +288,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -297,7 +297,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -311,7 +311,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -320,7 +320,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -334,7 +334,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -343,7 +343,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -357,7 +357,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -366,7 +366,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -380,7 +380,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -389,7 +389,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -403,7 +403,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -412,7 +412,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -426,7 +426,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -435,7 +435,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -449,7 +449,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -458,7 +458,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -472,7 +472,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -481,7 +481,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -495,7 +495,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -504,7 +504,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -518,7 +518,7 @@ WHERE res_rut in
                              (SELECT estados=STUFF(
                                                      (SELECT ', ' + res_situacion
                                                       FROM ut_cob_resolucion_t
-                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente in
+                                                      WHERE ut_cob_resolucion_t.flg_rut_cliente IN
                                                           (SELECT rut_cliente
                                                            FROM #tmp_cliente)
                                                         AND ut_cob_resolucion_t.res_rut = r.res_rut
@@ -527,7 +527,7 @@ WHERE res_rut in
                                                       GROUP BY flg_rut_cliente, res_rut, res_periodo, res_situacion
                                                       FOR XML path(''), TYPE).value('.[1]', 'nvarchar(max)'), 1, 2, '')
                               FROM ut_cob_resolucion_t r
-                              WHERE r.flg_rut_cliente in
+                              WHERE r.flg_rut_cliente IN
                                   (SELECT rut_cliente
                                    FROM #tmp_cliente)
                                 AND r.res_rut =#tmp_salida.rut
@@ -567,58 +567,58 @@ WHERE res_rut in
   SET res_juicio=isnull(
                           (SELECT count(*)
                            FROM ut_cob_resolucion_t r
-                           WHERE flg_rut_cliente in
+                           WHERE flg_rut_cliente IN
                                (SELECT rut_cliente
                                 FROM #tmp_cliente)
                              AND res_rut = #tmp_salida.rut
                              AND res_juicio='S'
-                             AND res_periodo in
+                             AND res_periodo IN
                                (SELECT periodo
                                 FROM #tmp_periodos)),0)
   UPDATE #tmp_salida
   SET es_dnp=isnull(
                       (SELECT count(*)
                        FROM ut_cob_resolucion_t r
-                       WHERE flg_rut_cliente in
+                       WHERE flg_rut_cliente IN
                            (SELECT rut_cliente
                             FROM #tmp_cliente)
                          AND res_rut = #tmp_salida.rut
                          AND res_tipo_cobro='DNP'
                          AND isnull(res_obs, '')=''
-                         AND res_periodo in
+                         AND res_periodo IN
                            (SELECT periodo
                             FROM #tmp_periodos)),0) , es_car=isnull(
                                                                       (SELECT count(*)
                                                                        FROM ut_cob_resolucion_t r
-                                                                       WHERE flg_rut_cliente in
+                                                                       WHERE flg_rut_cliente IN
                                                                            (SELECT rut_cliente
                                                                             FROM #tmp_cliente)
                                                                          AND res_rut = #tmp_salida.rut
                                                                          AND res_tipo_cobro='CAR'
                                                                          AND isnull(res_obs, '')=''
-                                                                         AND res_periodo in
+                                                                         AND res_periodo IN
                                                                            (SELECT periodo
                                                                             FROM #tmp_periodos)),0) , es_cai=isnull(
                                                                                                                       (SELECT count(*)
                                                                                                                        FROM ut_cob_resolucion_t r
-                                                                                                                       WHERE flg_rut_cliente in
+                                                                                                                       WHERE flg_rut_cliente IN
                                                                                                                            (SELECT rut_cliente
                                                                                                                             FROM #tmp_cliente)
                                                                                                                          AND res_rut = #tmp_salida.rut
                                                                                                                          AND res_tipo_cobro='DNP'
                                                                                                                          AND isnull(res_obs, '')='CAI'
-                                                                                                                         AND res_periodo in
+                                                                                                                         AND res_periodo IN
                                                                                                                            (SELECT periodo
                                                                                                                             FROM #tmp_periodos)),0) , es_cam=isnull(
                                                                                                                                                                       (SELECT count(*)
                                                                                                                                                                        FROM ut_cob_resolucion_t r
-                                                                                                                                                                       WHERE flg_rut_cliente in
+                                                                                                                                                                       WHERE flg_rut_cliente IN
                                                                                                                                                                            (SELECT rut_cliente
                                                                                                                                                                             FROM #tmp_cliente)
                                                                                                                                                                          AND res_rut = #tmp_salida.rut
                                                                                                                                                                          AND res_tipo_cobro='DNP'
                                                                                                                                                                          AND isnull(res_obs, '')='CAM'
-                                                                                                                                                                         AND res_periodo in
+                                                                                                                                                                         AND res_periodo IN
                                                                                                                                                                            (SELECT periodo
                                                                                                                                                                             FROM #tmp_periodos)),0)--select * from #tmp_reso
 
@@ -681,7 +681,7 @@ WHERE res_rut in
   SET carga_especial =
     (SELECT count(*)
      FROM ut_cob_resolucion_t r
-     WHERE r.flg_rut_cliente in
+     WHERE r.flg_rut_cliente IN
          (SELECT rut_cliente
           FROM #tmp_cliente)
        AND #tmp_salida.rut =r.res_rut
@@ -693,7 +693,7 @@ WHERE res_rut in
                 ELSE 'S'
             END
      FROM ut_cob_resolucion_t r
-     WHERE r.flg_rut_cliente in
+     WHERE r.flg_rut_cliente IN
          (SELECT rut_cliente
           FROM #tmp_cliente)
        AND #tmp_salida.rut =r.res_rut
@@ -704,19 +704,19 @@ WHERE res_rut in
   SET carga_ultima_remesa='N' --where rut in (select res_rut from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente) and r.res_periodo=202305 )
 
   UPDATE #tmp_salida
-  SET carga_ultima_remesa='S' WHERE rut in
+  SET carga_ultima_remesa='S' WHERE rut IN
     (SELECT res_rut
      FROM ut_cob_resolucion_t r
-     WHERE r.flg_rut_cliente in
+     WHERE r.flg_rut_cliente IN
          (SELECT rut_cliente
           FROM #tmp_cliente)
-       AND r.res_periodo=@periodo ) --delete from #tmp_salida where  carga_ultima_remesa='S'
+       AND r.res_periodo=@periodo )--delete from #tmp_salida where  carga_ultima_remesa='S'
 
   UPDATE #tmp_salida
   SET fec_carga_periodo_pag =
     (SELECT min(res_fec_ing)
      FROM ut_cob_resolucion_t
-     WHERE flg_rut_cliente in
+     WHERE flg_rut_cliente IN
          (SELECT rut_cliente
           FROM #tmp_cliente)
        AND res_periodo=#tmp_salida.ultPeriodo )
@@ -724,7 +724,7 @@ WHERE res_rut in
   SET ult_periodo_cca =
     (SELECT max(res_periodo)
      FROM ut_cob_resolucion_t
-     WHERE flg_rut_cliente in
+     WHERE flg_rut_cliente IN
          (SELECT rut_cliente
           FROM #tmp_cliente)
        AND res_rut = #tmp_salida.rut
@@ -740,7 +740,7 @@ WHERE res_rut in
   SET periodo_carga =
     (SELECT max(res_periodo)
      FROM ut_cob_resolucion_t r
-     WHERE flg_rut_cliente in
+     WHERE flg_rut_cliente IN
          (SELECT c.rut_cliente
           FROM #tmp_cliente c)
        AND r.res_rut = #tmp_salida.rut
@@ -829,7 +829,7 @@ WHERE res_rut in
                                                                                                          es_cam ,
                                                                                                          periodo_carga --into	EMMA.dbo.CAM_HAB_20231123_RUT
  -- drop table exportacion.dbo.INF_PRO_CCA_20231110_V2
- INTO exportacion.dbo.INF_HAB_TOT_20231220_AUT
+ INTO exportacion.dbo.INF_HAB_TOT_20231221_AUT
 FROM #tmp_salida
 LEFT JOIN ut_cob_deudor_m d ON d.flg_rut_deudor = rut
 ORDER BY rut --drop table EMMA.dbo.CAM_HAB_20230810_RUT

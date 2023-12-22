@@ -3,7 +3,8 @@ import logging
 from airflow.models import DAG
 from airflow.utils.dates import timedelta, days_ago
 from airflow.operators.python_operator import PythonOperator
-from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
+from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 import datetime
 from dateutil.relativedelta import relativedelta
 import sqlparse
@@ -1383,28 +1384,21 @@ def crear_sql_hab(**kwargs):
     except Exception as e:
         logging.error(e)
 
-tables = [
-    "#tmp_reso",
-    "#tmp_salida",
-    "#tmp_dis",
-    "#tmp_periodos",
-    "#tmp_periodos_vigente",
-    "#tmp_estados",
-    "#tmp_gestionesvalidas",
-    "#tmp_gestiones_hab",
-    "#tmp_gestiones_cap",
-    "#tmp_gestiones_pro",
-    "#tmp_pads",
-    "#tmp_gesdeudor",
-    "#tmp_cambiosestado",
-    "#tmp_cliente"
-]
 
-    def eliminar_tablas_temporales():
-        
+'''def ejecutar_script_hab():
+    fd = open('/home/myc-ti-2/airflow/dags/reports/queries/info_estados_hab.sql', 'r')
+    sqlFile = fd.read()
+    fd.close()
+
+    hook = MsSqlHook(mssql_conn_id="mssql_menares_33")
+    
+    try:
+        hook.run(sqlFile)
+    except Exception as e:
+        logging.error(e)'''
 
 with DAG(
-    "create-sql-script-hab",
+    "crear_informes_totales",
     default_args=default_args,
     description="crea el script sql de informe total con fechas actualizadas.",
     schedule_interval="00 7 * * *  ",
@@ -1412,28 +1406,45 @@ with DAG(
     concurrency=4,
     tags=["informes", "sql server"],
 ) as dag:
-    crear_sql_script_hab = PythonOperator(
+    '''crear_sql_script_hab = PythonOperator(
         task_id="crear_sql_script_hab", 
         python_callable=crear_sql_hab,
         op_kwargs={'cliente': 'HAB'}
-    )
-    crear_sql_script_pro = PythonOperator(
+    )'''
+
+    '''crear_sql_script_pro = PythonOperator(
         task_id="crear_sql_script_pro", 
         python_callable=crear_sql_hab,
         op_kwargs={'cliente': 'PRO'}
-    )
-    
-    """    for table in tables:
-        drop_tables = SQLExecuteQueryOperator(
-        task_id=f"drop_table_{table[1:]}",
-        sql=f"USE WEBCOB; DROP TABLE {table};",
+    )'''
+
+    '''ejecuta_script_hab = PythonOperator(
+        task_id="ejecutar_script_hab", 
+        python_callable=ejecutar_script_hab,
+    )'''
+
+    create_hab_table = MsSqlOperator(
+        task_id="crear_tabla_informe_hab",
+        mssql_conn_id="mssql_menares_33",
+        sql="queries/info_estados_hab.sql",
         split_statements=True,
-        return_last=False,
-        )"""
+        autocommit=True,
+        dag=dag
+    )
+
+    '''create_pro_table = MsSqlOperator(
+        task_id="crear_tabla_informe_pro",
+        mssql_conn_id="mssql_menares_33",
+        sql="queries/info_estados_pro.sql",
+        autocommit=True
+    )'''
 
 
-    crear_sql_script_hab
-    crear_sql_script_pro
+    
+
+    #crear_sql_script_hab >> ejecuta_script_hab
+     #>> create_hab_table
+    #crear_sql_script_pro #>> create_pro_table
 
    
    

@@ -40,17 +40,13 @@ def crear_sql_hab(**kwargs):
         raise "Error de cliente"
     today = datetime.date.today()
     first = today.replace(day=1)
-    last_month = first - datetime.timedelta(days=1)
 
     periodo1 = (first - relativedelta(months=+5)).strftime("%Y%m")
     periodo2 = (first - relativedelta(months=+4)).strftime("%Y%m")
     periodo3 = (first - relativedelta(months=+3)).strftime("%Y%m")
     periodo4 = (first - relativedelta(months=+2)).strftime("%Y%m")
-    periodos = [periodo1, periodo2, periodo3, periodo4]
 
-
-    nombre_tabla_hab = f'INF_HAB_TOT_{today.strftime("%Y%m%d")}_AUT'
-    nombre_tabla_pro = f'INF_PRO_TOT_{today.strftime("%Y%m%d")}_AUT'
+    nombre_tabla_hab = f'INF_{cliente}_TOT_{today.strftime("%Y%m%d")}_AUT'
 
     meses = []
     for i in list(range(0,12)):
@@ -1385,6 +1381,32 @@ def crear_sql_hab(**kwargs):
         logging.error(e)
 
 
+def drop_temp_tables():
+    hook = MsSqlHook(mssql_conn_id="mssql_menares_33")
+    
+    tables = [
+        "#tmp_reso",
+        "#tmp_salida",
+        "#tmp_dis",
+        "#tmp_periodos",
+        "#tmp_periodos_vigente",
+        "#tmp_estados",
+        "#tmp_gestionesvalidas",
+        "#tmp_gestiones_hab",
+        "#tmp_gestiones_cap",
+        "#tmp_gestiones_pro",
+        "#tmp_pads",
+        "#tmp_gesdeudor",
+        "#tmp_cambiosestado",
+        "#tmp_cliente"
+        ]
+
+    for table in tables:
+        try:
+            hook.run(f"drop table {table}")
+        except Exception as e:
+            logging.error(e)
+
 '''def ejecutar_script_hab():
     fd = open('/home/myc-ti-2/airflow/dags/reports/queries/info_estados_hab.sql', 'r')
     sqlFile = fd.read()
@@ -1406,11 +1428,17 @@ with DAG(
     concurrency=4,
     tags=["informes", "sql server"],
 ) as dag:
-    '''crear_sql_script_hab = PythonOperator(
+    
+    drop_temporary_tables = PythonOperator(
+        task_id="borrar_tablas_temp",
+        python_callable=drop_temp_tables
+    )
+
+    crear_sql_script_hab = PythonOperator(
         task_id="crear_sql_script_hab", 
         python_callable=crear_sql_hab,
         op_kwargs={'cliente': 'HAB'}
-    )'''
+    )
 
     '''crear_sql_script_pro = PythonOperator(
         task_id="crear_sql_script_pro", 
@@ -1423,14 +1451,14 @@ with DAG(
         python_callable=ejecutar_script_hab,
     )'''
 
-    create_hab_table = MsSqlOperator(
+    '''create_hab_table = MsSqlOperator(
         task_id="crear_tabla_informe_hab",
         mssql_conn_id="mssql_menares_33",
         sql="queries/info_estados_hab.sql",
         split_statements=True,
         autocommit=True,
         dag=dag
-    )
+    )'''
 
     '''create_pro_table = MsSqlOperator(
         task_id="crear_tabla_informe_pro",
@@ -1441,7 +1469,7 @@ with DAG(
 
 
     
-
+    drop_temporary_tables >> crear_sql_script_hab 
     #crear_sql_script_hab >> ejecuta_script_hab
      #>> create_hab_table
     #crear_sql_script_pro #>> create_pro_table

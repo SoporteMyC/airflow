@@ -4,9 +4,8 @@ declare @pas_actual varchar(200)
 declare @ema_nuevo varchar(200)
 declare @pas_nuevo varchar(200)
 
-/*login*/
 select * from ut_cob_parametros_m where cod_app='SMAIL' and cod_parametro='SMTPL' 
-/*contraseña*/
+
 select * from ut_cob_parametros_m where cod_app='SMAIL' and cod_parametro='SMTPP'
 
 select @ema_actual = val_texto
@@ -23,7 +22,6 @@ select @ema_actual  ema_actual
 	  ,@ema_nuevo 	ema_nuevo 
 	  ,@pas_nuevo 	pas_nuevo 
 
-/*Actualiza*/
 
 UPDATE ut_cob_parametros_m 
 set val_texto = @ema_nuevo
@@ -38,13 +36,5 @@ where cod_app='SMAIL' and cod_parametro='SMTPP'
 
 
 
-/*login*/
 select * from ut_cob_parametros_m where cod_app='SMAIL' and cod_parametro='SMTPL' 
-/*contraseña*/
 select * from ut_cob_parametros_m where cod_app='SMAIL' and cod_parametro='SMTPP'
-
-
-	  /*
-	  informacionprevisional@menaresycia.com	menaresIP	contactoafp@menaresycia.com	menaresAFP
-	  
-	  */

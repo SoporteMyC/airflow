@@ -96,7 +96,13 @@ def crear_sql_hab(**kwargs):
         set @flg_consideraPiloto='N'
         
         {set_cliente}
-            
+        
+        CREATE TABLE webcob.dbo.prueba1 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
+
 
         insert into #tmp_cliente (rut_cliente) values (@rut_cliente)
 
@@ -273,8 +279,6 @@ def crear_sql_hab(**kwargs):
         ,fecha_gestion date
         ,carga_especial int
         ,carga_mixta char(1)
-        /*nueva informacion*/
-        /*PROVIDA*/
         , cod_gesdeudor_afp_provida   int
         , cod_gestion_afp_provida     varchar(2)
         , est_gestion_afp_provida     varchar(2)
@@ -286,7 +290,6 @@ def crear_sql_hab(**kwargs):
         , can_pe_provida			  int
         , can_ne_provida		  int
         , can_pad_provida	  int
-        /*HABITAT*/
         , cod_gesdeudor_afp_habitat   int
         , cod_gestion_afp_habitat     varchar(2)
         , est_gestion_afp_habitat     varchar(2)
@@ -298,7 +301,6 @@ def crear_sql_hab(**kwargs):
         , can_pe_habitat			  int
         , can_ne_habitat		  int
         , can_pad_habitat	  int
-        /*CAPITAL*/
         , cod_gesdeudor_afp_capital   int
         , cod_gestion_afp_capital     varchar(2)
         , est_gestion_afp_capital     varchar(2)
@@ -310,7 +312,6 @@ def crear_sql_hab(**kwargs):
         , can_pe_capital			  int
         , can_ne_capital		  int
         , can_pad_capital	  int
-        /*BUSQUEDA*/
         , cod_gesdeudor_busqueda       int
         , cod_gestion_busqueda      varchar(2)
         , est_gestion_busqueda      varchar(2)
@@ -406,6 +407,12 @@ def crear_sql_hab(**kwargs):
         set rut_ejecutiva_2 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_2)
         where #tmp_reso.situacion iN ('PAD','PSR')
         and periodo=@periodo_3
+
+        CREATE TABLE webcob.dbo.prueba2 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
 
         update #tmp_reso 
         set rut_ejecutiva_1 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1)
@@ -709,6 +716,11 @@ def crear_sql_hab(**kwargs):
         group by flg_rut_cliente,res_rut, res_periodo
         ),'')
 
+        CREATE TABLE webcob.dbo.prueba3 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
         print '*** 11 ***'	
         print getdate()	
         update #tmp_salida
@@ -931,6 +943,11 @@ def crear_sql_hab(**kwargs):
 
 
 
+        CREATE TABLE webcob.dbo.prueba4 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
 
 
 
@@ -1152,6 +1169,12 @@ def crear_sql_hab(**kwargs):
         drop table #tmp_gesdeudor
         drop table #tmp_cambiosestado
         drop table #tmp_cliente;
+
+        CREATE TABLE webcob.dbo.prueba6 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
         """
 
     logging.warning(os.getcwd())

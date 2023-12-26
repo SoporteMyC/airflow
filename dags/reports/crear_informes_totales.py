@@ -176,6 +176,11 @@ def crear_sql_hab(**kwargs):
 
 
 
+        CREATE TABLE webcob.dbo.prueba15 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
 
         select @fechaCargaPeriodo fechaCargaPeriodo
 
@@ -331,6 +336,12 @@ def crear_sql_hab(**kwargs):
         ,gestion_valida_cam char(1)
         ,gestion_valida_eje char(1)
         )
+
+        CREATE TABLE webcob.dbo.prueba16 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
 
         print '*** 01.1 INSERTA PERIODOS ***'	
 

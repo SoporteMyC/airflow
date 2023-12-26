@@ -109,7 +109,7 @@ def crear_sql_hab(**kwargs):
         end
 
 
-        select @periodo = max(res_periodo) from ut_cob_resolucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente)--and isnull(res_juicio,'N')='N'
+        select @periodo = max(res_periodo) from ut_cob_resolucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente)
 
         set @periodo = {periodo4}
 

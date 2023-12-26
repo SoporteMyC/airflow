@@ -28,8 +28,8 @@ def check_email():
     hook = MsSqlHook(mssql_conn_id=database) 
     
     try:
-        df = hook.get_pandas_df("select * from ut_cob_parametros_m where cod_app='SMAIL' and cod_parametro='SMTPL' ;")
-        logging.info(f"Correo actual: {df['val_texto']}")
+        df = hook.get_pandas_df("select * from webcob.dbo.ut_cob_parametros_m where cod_app='SMAIL' and cod_parametro='SMTPL' ;")
+        print(f"Correo actual: {df['val_texto']}")
     except Exception as e:
         logging.error(e)
 

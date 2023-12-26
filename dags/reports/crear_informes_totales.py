@@ -5,6 +5,7 @@ from airflow.utils.dates import timedelta, days_ago
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
 from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
+from airflow.models import Variable
 import datetime
 from dateutil.relativedelta import relativedelta
 import sqlparse
@@ -13,6 +14,11 @@ import os
 warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)
 
+
+try:
+    database = Variable.get("current_database")
+except:
+    logging.error("Error al conseguir la variable de base de datos actual.")
 
 default_args = {
     "owner": "adrian",
@@ -1383,7 +1389,7 @@ def crear_sql_hab(**kwargs):
 
 
 def drop_temp_tables():
-    hook = MsSqlHook(mssql_conn_id="mssql_menares_34")
+    hook = MsSqlHook(mssql_conn_id=database)
     
     tables = [
         "#tmp_reso",
@@ -1413,7 +1419,7 @@ def drop_temp_tables():
     sqlFile = fd.read()
     fd.close()
 
-    hook = MsSqlHook(mssql_conn_id="mssql_menares_34")
+    hook = MsSqlHook(mssql_conn_id=database)
     
     try:
         hook.run(sqlFile)
@@ -1454,7 +1460,7 @@ with DAG(
 
     create_hab_table = MsSqlOperator(
         task_id="crear_tabla_informe_hab",
-        mssql_conn_id="mssql_menares_34",
+        mssql_conn_id=database,
         sql="queries/info_estados_hab.sql",
         split_statements=True,
         autocommit=True,
@@ -1463,7 +1469,7 @@ with DAG(
 
     '''create_pro_table = MsSqlOperator(
         task_id="crear_tabla_informe_pro",
-        mssql_conn_id="mssql_menares_34",
+        mssql_conn_id=database,
         sql="queries/info_estados_pro.sql",
         autocommit=True
     )'''

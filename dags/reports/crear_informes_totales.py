@@ -59,13 +59,11 @@ def crear_sql_hab(**kwargs):
         meses.append((first - relativedelta(months=+i)).strftime("%Y%m"))
     meses = sorted(meses, key=lambda x: int(x[4:]))
 
-    script_habitat = f"""
+    script_habitat = """
         use webcob
 
         select getdate()
 
-
-        --select * from ut_cob_cliente_m
         declare @rut_cliente int
         declare @periodos varchar(100)
         declare @estados varchar(100)
@@ -83,14 +81,13 @@ def crear_sql_hab(**kwargs):
 
         CREATE table #tmp_cliente(rut_cliente int)
 
-
         select @fec_capital = max(res_fec_ing) from ut_cob_resolucion_t where flg_rut_cliente=dbo.getCapital()
 
         set @periodopad = {meses[5]}
 
         set @distribucion='N'
 
-        set @tipoInfo = 'T' --TOTAL
+        set @tipoInfo = 'T'
 
 
         set @estados='PE,NE,PAD,PAE,PSR,CCA,EQ,ODE,PRV'
@@ -111,20 +108,15 @@ def crear_sql_hab(**kwargs):
             end
         end
 
-        /*
-        (select rut_cliente from #tmp_cliente)
-        */
+
         select @periodo = max(res_periodo) from ut_cob_resolucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente)--and isnull(res_juicio,'N')='N'
 
         set @periodo = {periodo4}
 
         select @periodo ultimo_periodo
-        --set @periodo={meses[7]}
         select @maxFecha  = max(flg_insert) from ut_cob_distibucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         select @maxFecha2 = max(flg_insert) from ut_cob_distibucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and flg_insert<@maxFecha
         select @maxFecha3 = max(flg_insert) from ut_cob_distibucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and flg_insert<@maxFecha2
-        --select @maxFecha = @maxFecha2
-        --select @maxFecha2
 
 
         create table #tmp_pads(codigo int, monto numeric(18), rut_deudor int, periodo int, fecha_info date, fecha_reg date, nud int, monto_for varchar(20))
@@ -178,7 +170,6 @@ def crear_sql_hab(**kwargs):
 
 
 
-        --select @fechaCargaPeriodo = '2020-05-01'
 
         select @fechaCargaPeriodo fechaCargaPeriodo
 
@@ -347,21 +338,17 @@ def crear_sql_hab(**kwargs):
         declare @periodo_3 int
 
         insert into #tmp_periodos
-        --select {meses[2]}
         select splitdata from dbo.Split(@periodos,',') order by id
 
         print '*** 01.2 INSERTA PERIODOS ok ***'	
 
-        --select * from #tmp_periodos
 
         print '*** 01.3 estados ***'	
 
         insert into #tmp_estados
         select splitdata from dbo.Split(@estados,',') order by id
-        --select * from #tmp_periodos
         print '*** 02 INSERTA RESOLUCIONES ***'	
         print getdate()	
-        /*2019-01-27*/
 
         select 'tmp_periodos', * from #tmp_periodos
 
@@ -375,53 +362,6 @@ def crear_sql_hab(**kwargs):
             from ut_cob_resolucion_t r
             where flg_rut_cliente in (select rut_cliente from #tmp_cliente)
             and res_periodo  in (select periodo from #tmp_periodos) 
-            
-            --and res_codigo in (select p.res_codigo from pagos_previos p)
-            --and res_situacion not in ('CCA','ODE')
-
-            --and res_rut = 76964450 
-        /*	and res_nud  in (
-        select numpla from exportacion.dbo.CAR_PRO_CCA_{meses[0]}23)*/
-        --select [ID_DEUDA] from exportacion.dbo.RAN_HAB_{meses[5]}23
-        --)
-        --	and res_codigo in 
-        --	(select r2.res_codigo from webcob.dbo.ut_cob_resolucion_t r2 where r2.flg_rut_cliente=dbo.getprovida() and r2.res_periodo>={meses[10]} and r2.res_rut in (select c.RUT from exportacion.dbo.CAR_PRO_CCA_{meses[3]}08 c) and r2.res_situacion in ('PE','NE'))
-            /*
-            and res_rut in (
-        select rut_empleador from exportacion.dbo.REV_HAB_{meses[9]}_{meses[0]}07
-        )
-        */
-            --and res_lpe='S'
-            --and res_fec_ing='2020-11-25'
-            --and res_rut in (
-            --select RUT_EMPLEADOR from exportacion.dbo.REV_HAB_{meses[7]}31
-            --)
-            
-            
-            /*and res_rut in (
-                select distinct x.res_rut from ut_cob_resolucion_t x 
-            where x.flg_rut_cliente in (select c.rut_cliente from #tmp_cliente c)
-            and x.res_periodo  in (select p.periodo from #tmp_periodos p) 
-            and x.res_tipo_cobro='CAM'
-            )
-            */
-            --and res_situacion in ('CCJ')
-            --and res_fecha = '2022-08-03'
-            --and res_situaci0n in ('PE','NE','PAD','PAE','PSR')
-            --and res_situacion in ('AC'){meses[8]}30
-            --and isnull(res_+uicio,'N')='S'
-            --and res_fec_ing='2022-06-14'
-            
-            /*and res_codigo in (
-            select res_codigo from ut_cob_cambiosestado_t where rut_cliente=dbo.getProvida()  and convert(date,fec_insert)='2020-04-08' 
-            )*/
-            --and res_tipo_cobro='CAR'
-            --and isnull(res_obs,'')='CAM'
-            --and res_tipo_cobro='CESP'
-            --and res_monto=0
-            /*and res_codigo in (
-            1238166
-            )*/
             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
             select periodo from #tmp_periodos
             select sum(monto), count(*) from #tmp_reso where periodo=@periodo
@@ -430,8 +370,6 @@ def crear_sql_hab(**kwargs):
 
 
         select distinct rut  from #tmp_reso
-        /*Carga rut con gestiones validas*/
-        --select * from ut_cob_est_gestion_t where cod_gestion='02' and flg_cto_valido='S'
 
         select 'ut_cob_est_gestion_t', * from ut_cob_est_gestion_t order by 1,2
 
@@ -439,13 +377,10 @@ def crear_sql_hab(**kwargs):
         print '*** 03 ACTUALIZA EJECUTIVAS***'	
         print getdate()		
         select @maxFecha maxFecha
-        --select * from #tmp_reso where rut=78016230
-
 
         update #tmp_reso
         set rut_ejecutiva_0 = (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatos(@rut_cliente,#tmp_reso.rut))
         where isnull(rut_ejecutiva_0,0)=0
-        --select *, @rut_cliente from #tmp_reso where rut=78016230
 
         if @rut_cliente=dbo.gethabitat()
         begin
@@ -453,47 +388,24 @@ def crear_sql_hab(**kwargs):
             set rut_ejecutiva_0 = (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatos(98100,#tmp_reso.rut))
             where isnull(rut_ejecutiva_0,0)=0
         end
-        --select * from #tmp_reso where rut=78016230
-        /*
-        (select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha and rut_deudor = #tmp_reso.rut ) -- and cod_grupo = 99)
-
-        select * from EjecutivaDeudorxRutDatos(@rut_cliente,86454800)
-        */
 
         update #tmp_reso
         set rut_ejecutiva_1 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,1))
         where isnull(rut_ejecutiva_1,0)=0
 
-        --(select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha2 and rut_deudor = #tmp_reso.rut)
-
 
         update #tmp_reso
         set rut_ejecutiva_2 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,2))
         where isnull(rut_ejecutiva_2,0)=0
-        --(select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha3 and rut_deudor = #tmp_reso.rut)
-
-
-        /*revisa si existen reasignaciones*/
-
-
-        --select * from #tmp_reso where rut =86454800
-
-
 
         select @periodo_1 = max(periodo) from ut_cob_distibucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and flg_insert = @maxFecha
         select @periodo_2 = max(periodo) from ut_cob_distibucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and flg_insert = @maxFecha and periodo<@periodo_1
         select @periodo_3 = max(periodo) from ut_cob_distibucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and flg_insert = @maxFecha and periodo<@periodo_2
 
-        /*
-        select @periodo_1
-        ,@periodo_2
-        ,@periodo_3
-        */
         update #tmp_reso 
         set rut_ejecutiva_2 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_2)
         where #tmp_reso.situacion iN ('PAD','PSR')
         and periodo=@periodo_3
-
 
         update #tmp_reso 
         set rut_ejecutiva_1 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1)
@@ -504,8 +416,6 @@ def crear_sql_hab(**kwargs):
         set rut_ejecutiva_0 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0)
         where #tmp_reso.situacion iN ('PAD','PSR')
         and periodo=@periodo_1
-
-        --select 'PAD', * from #tmp_reso where rut =86454800
 
         update #tmp_reso 
         set rut_ejecutiva_2 = isnull((
@@ -553,41 +463,19 @@ def crear_sql_hab(**kwargs):
             update #tmp_reso
             set rut_ejecutiva_0 = (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente2,#tmp_reso.rut,0))
             where isnull(rut_ejecutiva_0,0)=0
-            /*
-            (select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha and rut_deudor = #tmp_reso.rut ) -- and cod_grupo = 99)
-
-            select * from EjecutivaDeudorxRutDatos(@rut_cliente,86454800)
-            */
 
             update #tmp_reso
             set rut_ejecutiva_1 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente2,#tmp_reso.rut,1))
             where isnull(rut_ejecutiva_1,0)=0
 
-            --(select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha2 and rut_deudor = #tmp_reso.rut)
-
-
             update #tmp_reso
             set rut_ejecutiva_2 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente2,#tmp_reso.rut,2))
             where isnull(rut_ejecutiva_2,0)=0
-            --(select top 1 flg_rut_usuario from ut_cob_distibucion_t where flg_rut_cliente=@rut_cliente and flg_insert=@maxFecha3 and rut_deudor = #tmp_reso.rut)
-
-
-            /*revisa si existen reasignaciones*/
-
-
-            --select * from #tmp_reso where rut =86454800
-
-
 
             select @periodo_1 = max(periodo) from ut_cob_distibucion_t where flg_rut_cliente = @rut_cliente2 and flg_insert = @maxFecha
             select @periodo_2 = max(periodo) from ut_cob_distibucion_t where flg_rut_cliente = @rut_cliente2 and flg_insert = @maxFecha and periodo<@periodo_1
             select @periodo_3 = max(periodo) from ut_cob_distibucion_t where flg_rut_cliente = @rut_cliente2 and flg_insert = @maxFecha and periodo<@periodo_2
 
-            /*
-            select @periodo_1
-            ,@periodo_2
-            ,@periodo_3
-            */
             update #tmp_reso 
             set rut_ejecutiva_2 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente2 and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_2)
             where #tmp_reso.situacion iN ('PAD','PSR')
@@ -603,8 +491,6 @@ def crear_sql_hab(**kwargs):
             set rut_ejecutiva_0 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente2 and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0)
             where #tmp_reso.situacion iN ('PAD','PSR')
             and periodo=@periodo_1
-
-            --select 'PAD', * from #tmp_reso where rut =86454800
 
             update #tmp_reso 
             set rut_ejecutiva_2 = isnull((
@@ -646,17 +532,6 @@ def crear_sql_hab(**kwargs):
 
         end
 
-        --select 'NEPE',* from #tmp_reso where rut =86454800
-
-        /*
-        select 'flg_rut_usuario', flg_rut_usuario from ut_cob_usuarios_m where flg_user =(
-        select top 1 pag_usuario from ut_cob_pago_p where pag_liq= 
-        (select top 1 neg_numero from ut_cob_negocio_t where neg_n_sist=(
-        select max(res_codigo) from ut_cob_resolucion_t r where r.flg_rut_cliente= @rut_cliente and r.res_rut=86454800 and r.res_periodo=@periodo_1 and r.res_situacion  IN ('NE','PE')
-        ))
-        )
-        */
-        /**/
         update #tmp_reso
         set ejecutiva = (select txt_nombre + ' ' + txt_apellido from ut_cob_usuarios_m where flg_rut_usuario=#tmp_reso.rut_ejecutiva_0)
 
@@ -670,23 +545,16 @@ def crear_sql_hab(**kwargs):
         update #tmp_reso
         set ejecutiva_a2 = (select txt_nombre + ' ' + txt_apellido from ut_cob_usuarios_m where flg_rut_usuario=#tmp_reso.rut_ejecutiva_2)
 
-
-        --select * from #tmp_reso
-        --select * from #tmp_reso order by rut,periodo
-
         print '*** 04 INSERTA RUT SALIDA ***'	
         print getdate()	
 
         insert into #tmp_salida (rut)
         select rut from #tmp_reso group by rut
 
-        --select count(*) from #tmp_salida where rut in (select #tmp_reso.rut from #tmp_reso where periodo=@periodo)
-
         print '*** 05 ACTUALIZA MONTO SALIDA***'	
         print getdate()	
 
         select * from #tmp_salida
-            --select sum(monto) monto_uperiodo from #tmp_reso where periodo={meses[0]}
             update #tmp_salida
             set p_{meses[0]} = isnull((select sum(monto) from #tmp_reso where periodo={meses[0]} and #tmp_reso.rut = #tmp_salida.rut),0)  
             ,	p_{meses[1]} = isnull((select sum(monto) from #tmp_reso where periodo={meses[1]} and #tmp_reso.rut = #tmp_salida.rut),0)  
@@ -710,25 +578,12 @@ def crear_sql_hab(**kwargs):
             group by rut
             )
 
-            --select sum([p_{meses[0]}]) s1 from #tmp_salida
-
         delete from #tmp_salida where 
             {periodo1}=0
         and {periodo2}=0
         and {periodo3}=0
         and {periodo4}=0
             
-            
-            --select sum([p_{meses[0]}]) s2 from #tmp_salida
-
-            --select * from #tmp_salida where rut=70931900
-
-
-
-
-
-
-
         print '*** 05.1 ACTUALIZA LEY BUSTOS SALIDA***'	
         print getdate()	
 
@@ -740,7 +595,6 @@ def crear_sql_hab(**kwargs):
         where res_rut in (select rut from #tmp_salida ) 
         and res_periodo in (select periodo from #tmp_periodos) 
         and flg_rut_cliente in (select rut_cliente from #tmp_cliente)
-        --and isnull(res_juicio,'N')='N'
 
         print '*** 07 MARCA DISTRIBUIDO***'	
         print getdate()	
@@ -748,10 +602,6 @@ def crear_sql_hab(**kwargs):
         set dis='S'
         where codigo in (select res_codigo from ut_cob_distibucion_t where flg_insert='2018-09-30')
 
-        --select * from #tmp_dis where dis='S'
-        --select * from #tmp_dis where dis='N'
-
-        --delete from #tmp_salida where rut in (select rut from #tmp_dis where dis='S')
         update #tmp_salida
         set nuevo='N'
 
@@ -765,7 +615,6 @@ def crear_sql_hab(**kwargs):
                                 where flg_rut_cliente=@rut_cliente
                                 and res_rut = #tmp_salida.rut 
                                 and res_periodo <@periodo 
-                                --and isnull(res_juicio,'N')='N'
                                 ),0) 
         when 0 then 'S' else 'N' end
         end
@@ -776,7 +625,6 @@ def crear_sql_hab(**kwargs):
                                 where flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                                 and res_rut = #tmp_salida.rut 
                                 and res_periodo <@periodo 
-                                --and isnull(res_juicio,'N')='N'
                                 ),0) 
         when 0 then 'S' else 'N' end
         end
@@ -786,7 +634,6 @@ def crear_sql_hab(**kwargs):
                                 where flg_rut_cliente in (select rut_cliente from #tmp_cliente) 
                                 and res_rut = #tmp_salida.rut 
                                 and res_periodo <@periodo 
-                                --and isnull(res_juicio,'N')='N'
                                 ),0) 
 
 
@@ -795,7 +642,6 @@ def crear_sql_hab(**kwargs):
                                 where flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                                 and res_rut = #tmp_salida.rut 
                                 and res_periodo <@periodo 
-                                --and isnull(res_juicio,'N')='N'
                                 ),0) 
 
 
@@ -812,8 +658,6 @@ def crear_sql_hab(**kwargs):
                                 and res_rut = #tmp_salida.rut 
                                 and res_situacion in ('PE','PAD','PSR','NE')
                                 and res_periodo<>@periodo
-                                --and isnull(res_juicio,'N')='N'
-
                                 ),0)
 
 
@@ -825,8 +669,6 @@ def crear_sql_hab(**kwargs):
                                 and res_rut = #tmp_salida.rut 
                                 and res_situacion in ('PE','PAD','PSR')
                                 and res_periodo = ultPeriodo
-                                --and isnull(res_juicio,'N')='N'
-
                                 ),'1900-01-01'
                                 
                                 )
@@ -859,14 +701,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = r.res_periodo
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente,res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = #tmp_salida.ultPeriodo
-        --and isnull(res_juicio,'N')='N'
-
         group by flg_rut_cliente,res_rut, res_periodo
         ),'')
 
@@ -879,13 +718,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[0]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[0]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[0]}>0
@@ -900,13 +737,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[1]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[1]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[1]}>0
@@ -920,13 +755,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[2]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[2]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[2]}>0
@@ -940,13 +773,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[3]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[3]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[3]}>0
@@ -960,13 +791,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[4]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[4]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[4]}>0
@@ -980,13 +809,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[5]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[5]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[5]}>0
@@ -1000,13 +827,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[6]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[6]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[6]}>0
@@ -1020,13 +845,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[7]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[7]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
         ),'')
         where p_{meses[7]}>0
@@ -1040,13 +863,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[8]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[8]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
 
         ),'')
@@ -1061,13 +882,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[9]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[9]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
 
         ),'')
@@ -1081,13 +900,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[10]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[10]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
 
         ),'')
@@ -1102,13 +919,11 @@ def crear_sql_hab(**kwargs):
                             where ut_cob_resolucion_t.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
                             and ut_cob_resolucion_t.res_rut = r.res_rut
                             and ut_cob_resolucion_t.res_periodo = {meses[11]}
-                            --and isnull(res_juicio,'N')='N'
                             group by flg_rut_cliente, res_rut,res_periodo, res_situacion
         for xml path(''),type	).value('.[1]','nvarchar(max)'),1,2,'')
         from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente)
         and r.res_rut =#tmp_salida.rut
         and r.res_periodo = {meses[11]}
-        --and isnull(res_juicio,'N')='N'
         group by flg_rut_cliente, res_rut,res_periodo
 
         ),'')
@@ -1129,17 +944,17 @@ def crear_sql_hab(**kwargs):
 
         update #tmp_salida
         set ejecutiva_a0 =(select top 1 ejecutiva_a0 from #tmp_reso
-                        where #tmp_reso.rut = #tmp_salida.rut   and ejecutiva_a0 is not null --and #tmp_reso.periodo = @periodo_1
+                        where #tmp_reso.rut = #tmp_salida.rut   and ejecutiva_a0 is not null 
                         )
 
         update #tmp_salida
         set ejecutiva_a1 =(select top 1 ejecutiva_a1 from #tmp_reso
-                        where #tmp_reso.rut = #tmp_salida.rut  and ejecutiva_a1 is not null  --and #tmp_reso.periodo = @periodo_2
+                        where #tmp_reso.rut = #tmp_salida.rut  and ejecutiva_a1 is not null  
                         )
 
         update #tmp_salida
         set ejecutiva_a2 =(select top 1 ejecutiva_a2 from #tmp_reso
-                        where #tmp_reso.rut = #tmp_salida.rut  and ejecutiva_a2 is not null  --and #tmp_reso.periodo = @periodo_3
+                        where #tmp_reso.rut = #tmp_salida.rut  and ejecutiva_a2 is not null  
                         )
 
 
@@ -1154,8 +969,6 @@ def crear_sql_hab(**kwargs):
         ,   es_car=isnull((select count(*) from ut_cob_resolucion_t r where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and res_rut = #tmp_salida.rut and res_tipo_cobro='CAR' and isnull(res_obs,'')='' and res_periodo in (select periodo from #tmp_periodos)),0)
         ,   es_cai=isnull((select count(*) from ut_cob_resolucion_t r where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and res_rut = #tmp_salida.rut and res_tipo_cobro='DNP' and isnull(res_obs,'')='CAI' and res_periodo in (select periodo from #tmp_periodos)),0)
         ,   es_cam=isnull((select count(*) from ut_cob_resolucion_t r where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and res_rut = #tmp_salida.rut and res_tipo_cobro='DNP' and isnull(res_obs,'')='CAM' and res_periodo in (select periodo from #tmp_periodos)),0)
-
-        --select * from #tmp_reso
 
         update #tmp_salida
         set cod_gesdeudor = (select max(a.cod_gesdeudor) from ut_cob_gesdeudor_t a where a.rut_cliente=dbo.getProvida() 
@@ -1219,33 +1032,17 @@ def crear_sql_hab(**kwargs):
 
         end
 
-
-
-        /*habitat*/
-
-
         declare @fecha_gesAFP datetime
 
         set @fecha_gesAFP = '2020-07-01'
 
-        /*seleccionar gestiones HABITAT*/
-
-
-
-
-        /*correos*/
-
-        --select '#tmp_gestiones_hab', * from #tmp_gestiones_hab
-
         update #tmp_salida
         set carga_ultima_remesa='N'
-        --where rut in (select res_rut from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente) and r.res_periodo={meses[4]} )
 
         update #tmp_salida
         set carga_ultima_remesa='S'
         where rut in (select res_rut from ut_cob_resolucion_t r where r.flg_rut_cliente in (select rut_cliente from #tmp_cliente) and r.res_periodo=@periodo )
 
-        --delete from #tmp_salida where  carga_ultima_remesa='S'
         update #tmp_salida
         set fec_carga_periodo_pag = (
         select min(res_fec_ing) from ut_cob_resolucion_t where flg_rut_cliente in (select rut_cliente from #tmp_cliente) and res_periodo=#tmp_salida.ultPeriodo 
@@ -1277,14 +1074,7 @@ def crear_sql_hab(**kwargs):
 
 
                 declare @tipofecha int
-        set @tipofecha = 2 /*ultimos 2 meses*/
-
-        /*SOLO PARA PROVIDA*/
-        /*
-        update #tmp_salida
-        set sms_enviado = webcob.dbo.getTieneGestionSMS(@rut_cliente,rut,@tipofecha)
-        , correos_vi = webcob.dbo.getTieneGestionCorreoVI(@rut_cliente,rut,@tipofecha)
-        */
+        set @tipofecha = 2 
 
         update #tmp_salida
         set gestion_valida_cam = dbo.getTieneGestionRealizadaFechasCampana(@rut_cliente,rut,'2023-10-01','2023-10-30')
@@ -1341,8 +1131,6 @@ def crear_sql_hab(**kwargs):
         ,es_cai
         ,es_cam
         ,periodo_carga
-        --into	EMMA.dbo.CAM_HAB_20231123_RUT
-        -- drop table exportacion.dbo.INF_PRO_CCA_20231110_V2
         into exportacion.dbo.{nombre_tabla_hab}
         from #tmp_salida
         left join ut_cob_deudor_m d
@@ -1350,8 +1138,6 @@ def crear_sql_hab(**kwargs):
 
         order by  rut
 
-        --drop table EMMA.dbo.CAM_HAB_{meses[7]}10_RUT
-        --drop table exportacion.dbo.INF_PRO_TOT_{meses[6]}18_V1
         drop table #tmp_reso
         drop table #tmp_salida
         drop table #tmp_dis
@@ -1365,19 +1151,11 @@ def crear_sql_hab(**kwargs):
         drop table #tmp_pads
         drop table #tmp_gesdeudor
         drop table #tmp_cambiosestado
-        drop table #tmp_cliente
-
-        /*
-        select * from ut_cob_resolucion_t where res_rut=76977140 and flg_rut_cliente=98000100
-
-        select * from  ut_cob_distibucion_t where res_codigo=322713
-        */
-
-        --select format(getdate(),'dd-MM-yyyy')
+        drop table #tmp_cliente;
         """
 
     logging.warning(os.getcwd())
-    script_habitat = str(sqlparse.format(script_habitat, reindent=True, keyword_case='upper'))
+    script_habitat = str(sqlparse.format(script_habitat, reindent=False, keyword_case='upper'))
 
     ruta_archivo = os.path.join("dags", "reports", "queries", nombre_archivo_sql)
 
@@ -1462,7 +1240,7 @@ with DAG(
         task_id="crear_tabla_informe_hab",
         mssql_conn_id=database,
         sql="queries/info_estados_hab.sql",
-        split_statements=True,
+        split_statements=False,
         autocommit=True,
         dag=dag
     )

@@ -32,7 +32,7 @@ with DAG(
         task_id="ejecutar_script_cambio_correos",
         mssql_conn_id="mssql_menares_34",
         sql="queries/cambia_correos_webcob.sql",
-        split_statements=True,
+        split_statements=False,
         autocommit=True,
         dag=dag
     )

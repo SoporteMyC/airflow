@@ -829,7 +829,7 @@ WHERE res_rut IN
                                                                                                          es_cam ,
                                                                                                          periodo_carga --into	EMMA.dbo.CAM_HAB_20231123_RUT
  -- drop table exportacion.dbo.INF_PRO_CCA_20231110_V2
- INTO exportacion.dbo.INF_HAB_TOT_20231221_AUT
+ INTO exportacion.dbo.INF_HAB_TOT_20231226_AUT
 FROM #tmp_salida
 LEFT JOIN ut_cob_deudor_m d ON d.flg_rut_deudor = rut
 ORDER BY rut --drop table EMMA.dbo.CAM_HAB_20230810_RUT

@@ -21,7 +21,7 @@ default_args = {
     "email": ["soporte@menaresycia.com"],
     "email_on_failure": False,
     "email_on_retry": False,
-    "retries": 2,
+    "retries": 0,
     "catchup_by_default": False,
     "execution_timeout": timedelta(seconds=1800),
 }
@@ -1370,6 +1370,7 @@ def crear_sql_hab(**kwargs):
         --select format(getdate(),'dd-MM-yyyy')
         """
 
+    logging.warning(os.getcwd())
     script_habitat = str(sqlparse.format(script_habitat, reindent=True, keyword_case='upper'))
 
     ruta_archivo = os.path.join("dags", "reports", "queries", nombre_archivo_sql)
@@ -1382,7 +1383,7 @@ def crear_sql_hab(**kwargs):
 
 
 def drop_temp_tables():
-    hook = MsSqlHook(mssql_conn_id="mssql_menares_33")
+    hook = MsSqlHook(mssql_conn_id="mssql_menares_34")
     
     tables = [
         "#tmp_reso",
@@ -1403,7 +1404,7 @@ def drop_temp_tables():
 
     for table in tables:
         try:
-            hook.run(f"drop table {table}")
+            hook.run(f"use webcob; drop table {table}")
         except Exception as e:
             logging.error(e)
 
@@ -1412,7 +1413,7 @@ def drop_temp_tables():
     sqlFile = fd.read()
     fd.close()
 
-    hook = MsSqlHook(mssql_conn_id="mssql_menares_33")
+    hook = MsSqlHook(mssql_conn_id="mssql_menares_34")
     
     try:
         hook.run(sqlFile)
@@ -1451,25 +1452,25 @@ with DAG(
         python_callable=ejecutar_script_hab,
     )'''
 
-    '''create_hab_table = MsSqlOperator(
+    create_hab_table = MsSqlOperator(
         task_id="crear_tabla_informe_hab",
-        mssql_conn_id="mssql_menares_33",
+        mssql_conn_id="mssql_menares_34",
         sql="queries/info_estados_hab.sql",
         split_statements=True,
         autocommit=True,
         dag=dag
-    )'''
+    )
 
     '''create_pro_table = MsSqlOperator(
         task_id="crear_tabla_informe_pro",
-        mssql_conn_id="mssql_menares_33",
+        mssql_conn_id="mssql_menares_34",
         sql="queries/info_estados_pro.sql",
         autocommit=True
     )'''
 
 
     
-    drop_temporary_tables >> crear_sql_script_hab 
+    drop_temporary_tables >> crear_sql_script_hab >> create_hab_table
     #crear_sql_script_hab >> ejecuta_script_hab
      #>> create_hab_table
     #crear_sql_script_pro #>> create_pro_table

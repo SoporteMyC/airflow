@@ -1192,17 +1192,18 @@ def drop_temp_tables():
         except Exception as e:
             logging.error(e)
 
-'''def ejecutar_script_hab():
-    fd = open('/home/myc-ti-2/airflow/dags/reports/queries/info_estados_hab.sql', 'r')
+def ejecutar_script_hab():
+    fd = open('dags/reports/queries/info_estados_hab.sql', 'r')
     sqlFile = fd.read()
     fd.close()
 
+    logging.info(sqlFile)
     hook = MsSqlHook(mssql_conn_id=database)
     
     try:
-        hook.run(sqlFile)
+        hook.run(sqlFile, autocommit=True)
     except Exception as e:
-        logging.error(e)'''
+        logging.error(e)
 
 with DAG(
     "crear_informes_totales",
@@ -1231,19 +1232,19 @@ with DAG(
         op_kwargs={'cliente': 'PRO'}
     )'''
 
-    '''ejecuta_script_hab = PythonOperator(
+    ejecuta_script_hab = PythonOperator(
         task_id="ejecutar_script_hab", 
         python_callable=ejecutar_script_hab,
-    )'''
+    )
 
-    create_hab_table = MsSqlOperator(
+    """create_hab_table = MsSqlOperator(
         task_id="crear_tabla_informe_hab",
         mssql_conn_id=database,
         sql="queries/info_estados_hab.sql",
         split_statements=False,
         autocommit=True,
         dag=dag
-    )
+    )"""
 
     '''create_pro_table = MsSqlOperator(
         task_id="crear_tabla_informe_pro",
@@ -1254,8 +1255,8 @@ with DAG(
 
 
     
-    drop_temporary_tables >> crear_sql_script_hab >> create_hab_table
-    #crear_sql_script_hab >> ejecuta_script_hab
+    #drop_temporary_tables >> crear_sql_script_hab >> create_hab_table
+    crear_sql_script_hab >> ejecuta_script_hab
      #>> create_hab_table
     #crear_sql_script_pro #>> create_pro_table
 

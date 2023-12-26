@@ -59,7 +59,7 @@ def crear_sql_hab(**kwargs):
         meses.append((first - relativedelta(months=+i)).strftime("%Y%m"))
     meses = sorted(meses, key=lambda x: int(x[4:]))
 
-    script_habitat = """
+    script_habitat = f"""
         use webcob
 
         select getdate()

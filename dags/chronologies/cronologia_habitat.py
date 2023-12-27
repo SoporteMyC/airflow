@@ -4,6 +4,7 @@ from airflow.models import DAG
 from airflow.utils.dates import timedelta, days_ago
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
+from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 from airflow.models import Variable
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -27,6 +28,23 @@ periodo_final = (first - relativedelta(months=+2)).strftime("%Y%m")
 
 fecha_final = hoy.strftime("%Y%m%d")
 
+query1 = f"""
+        USE WEBCOB
+
+        DECLARE @rut_cliente int
+        declare @fecha_ini int
+        declare @fecha_fin int
+        declare @periodo_ini int
+        declare @periodo_fin int
+
+        set @fecha_ini={fecha_inicial}
+        set @fecha_fin={fecha_final}
+        set @periodo_ini={periodo_inicial}
+        set @periodo_fin={periodo_final}
+
+        EXECUTE [up_cob_cronoprejudicial_fechas_b_s_auto]  98000100, @fecha_ini, @fecha_fin, @periodo_ini, @periodo_fin
+    """
+
 try:
     database = Variable.get("current_database")
 except:
@@ -44,7 +62,7 @@ default_args = {
     "execution_timeout": timedelta(seconds=1800),
 }
 
-def ejecutar_procedimiento():
+'''def ejecutar_procedimiento():
 
     query1 = f"""
         USE WEBCOB
@@ -72,7 +90,7 @@ def ejecutar_procedimiento():
     try:
         hook.run(query1, autocommit=True)
     except Exception as e:
-        logging.error(e)
+        logging.error(e)'''
 
 
 def obtener_datos():
@@ -127,9 +145,18 @@ with DAG(
     tags=["cronologias", "sql server"],
 ) as dag:
     
-    ejecutar_script = PythonOperator(
-        task_id="ejecutar_procedimiento", 
-        python_callable=ejecutar_procedimiento
+    borrar_temp = MsSqlOperator(
+        task_id="borrar_temp",
+        mssql_conn_id=database,
+        sql="use webcob; DROP TABLE #tmp_liquidacion",
+        autocommit=True
+    )
+
+    ejecutar_script = MsSqlOperator(
+        task_id="ejecutar_procedimiento",
+        mssql_conn_id=database,
+        sql=query1,
+        autocommit=True
     )
 
     obtener_datos_db = PythonOperator(
@@ -142,5 +169,5 @@ with DAG(
         python_callable=drop_tables
     )
     
-    ejecutar_script >> obtener_datos_db >> borrar_tablas
+    borrar_temp >> ejecutar_script >> obtener_datos_db >> borrar_tablas
    

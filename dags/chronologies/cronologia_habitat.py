@@ -80,12 +80,15 @@ def obtener_datos():
     
     hook = MsSqlHook(mssql_conn_id=database)
     contador = 0
+    listo1 = False
+    listo2 = False
     while(contador < 13):
         time.sleep(300)
         try:
             df = hook.get_pandas_df("SELECT * FROM WEBCOB.dbo.CRON_HAB_TXT_AUTO")
             file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.txt")
-            df.tO_csv(file_path, sep=" ")
+            df.to_csv(file_path, sep=" ")
+            listo1 = True
         except Exception as e:
             logging.error(e)
 
@@ -93,9 +96,12 @@ def obtener_datos():
             df = hook.get_pandas_df("SELECT * FROM WEBCOB.dbo.CRON_HAB_XLSX_AUTO")
             file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.xlsx")
             df.to_excel(file_path)
+            listo2 = True
         except Exception as e:
             logging.error(e)
         contador += 1
+        if listo1 is True and listo2 is True:
+            return
 
 def drop_tables():
 

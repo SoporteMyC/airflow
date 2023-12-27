@@ -145,12 +145,12 @@ with DAG(
     tags=["cronologias", "sql server"],
 ) as dag:
     
-    borrar_temp = MsSqlOperator(
+    """borrar_temp = MsSqlOperator(
         task_id="borrar_temp",
         mssql_conn_id=database,
         sql="use webcob; DROP TABLE #tmp_liquidacion",
         autocommit=True
-    )
+    )"""
 
     ejecutar_script = MsSqlOperator(
         task_id="ejecutar_procedimiento",
@@ -169,5 +169,6 @@ with DAG(
         python_callable=drop_tables
     )
     
-    borrar_temp >> ejecutar_script >> obtener_datos_db >> borrar_tablas
+    #borrar_temp >> 
+    ejecutar_script >> obtener_datos_db >> borrar_tablas
    

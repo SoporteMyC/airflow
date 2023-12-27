@@ -50,7 +50,7 @@ def crear_script_cron_hab():
     periodo_final = (first - relativedelta(months=+2)).strftime("%Y%m") 
 
     fecha_final = hoy.strftime("%Y%m%d")
-    script =   """
+    script =   f"""
         set dateformat dmy
         declare @UNIDEU numeric(13)
         declare @PERCOT numeric(6)

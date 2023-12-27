@@ -529,10 +529,10 @@ def crear_script_cron_hab():
         logging.error(e)
 
 with DAG(
-    "crear_informes_totales",
+    "crear_cronologia_habitat",
     default_args=default_args,
-    description="crea el script sql de informe total con fechas actualizadas.",
-    schedule_interval="00 7 * * *  ",
+    description="crea los archivos de Cronologia Habitat",
+    schedule_interval=None,
     max_active_runs=1,
     concurrency=4,
     tags=["informes", "sql server"],

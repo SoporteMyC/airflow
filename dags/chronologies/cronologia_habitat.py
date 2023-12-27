@@ -531,6 +531,20 @@ def crear_script_cron_hab():
 
     ruta_archivo = os.path.join("dags", "chronologies", "queries", nombre_archivo_sql)
 
+    hook = MsSqlHook(mssql_conn_id=database) 
+    try:
+        os.mkdir("output")
+        os.mkdir("output\chronologies")
+    except Exception as e:
+        logging.error(e)
+
+    try:
+        df = hook.get_pandas_df("script")
+        df.to_excel(f"output\chronologies\cronologia_hab_txt_{fecha_final}.xlsx")
+    except Exception as e:
+        logging.error(e)
+
+
     try:
         with open(ruta_archivo, "w") as archivo_sql:
             archivo_sql.write(script)

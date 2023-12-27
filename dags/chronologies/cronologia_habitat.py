@@ -533,14 +533,14 @@ def crear_script_cron_hab():
 
     hook = MsSqlHook(mssql_conn_id=database) 
     try:
-        os.mkdir("output")
-        os.mkdir("output\chronologies")
+        os.mkdir(os.path.join("output", "chronologies"))
+
     except Exception as e:
         logging.error(e)
 
     try:
-        df = hook.get_pandas_df("script")
-        df.to_excel(f"output\chronologies\cronologia_hab_txt_{fecha_final}.xlsx")
+        df = hook.get_pandas_df(script)
+        df.to_excel(os.path.join("output", "chronologies", f"cronologia_hab_txt_{fecha_final}.xlsx"))
     except Exception as e:
         logging.error(e)
 

@@ -50,7 +50,7 @@ def crear_script_cron_hab():
     periodo_final = (first - relativedelta(months=+2)).strftime("%Y%m") 
 
     fecha_final = hoy.strftime("%Y%m%d")
-    script = f"""
+    script =   """
         set dateformat dmy
         declare @UNIDEU numeric(13)
         declare @PERCOT numeric(6)
@@ -70,24 +70,33 @@ def crear_script_cron_hab():
         declare @fch_llamada datetime
         declare @FEC_INAC date
         declare @FEC_SYS date
-        declare {fecha_inicial}_a varchar(15)
-        declare {fecha_final}_a varchar(15)
-        declare {fecha_inicial}_b datetime
-        declare {fecha_final}_b datetime
-        --declare {periodo_inicial} int
+        declare @fecha_ini int
+        declare @fecha_fin int
+        declare @periodo_ini int
+        declare @periodo_fin int
+        declare @fecha_ini_a varchar(15)
+        declare @fecha_fin_a varchar(15)
+        declare @fecha_ini_b datetime
+        declare @fecha_fin_b datetime
+        --declare @periodo_ini int
+
+        set @fecha_ini={fecha_inicial}
+        set @fecha_fin={fecha_final}
+        set @periodo_ini={periodo_inicial}
+        set @periodo_fin={periodo_final}
 
 
 
-        set {fecha_inicial}_a=convert(varchar,{fecha_inicial})
-        set {fecha_final}_a=convert(varchar,{fecha_final})
+        set @fecha_ini_a=convert(varchar,@fecha_ini)
+        set @fecha_fin_a=convert(varchar,@fecha_fin)
 
-        set {fecha_inicial}_b =convert(datetime,{fecha_inicial}_a,101)
-        set {fecha_final}_b =convert(datetime,{fecha_final}_a,101)
-        set {fecha_final}_b =dateadd(hour,23, {fecha_final}_b)
+        set @fecha_ini_b =convert(datetime,@fecha_ini_a,101)
+        set @fecha_fin_b =convert(datetime,@fecha_fin_a,101)
+        set @fecha_fin_b =dateadd(hour,23, @fecha_fin_b)
 
         
 
-        select {fecha_inicial}_b, {fecha_final}_b
+        select @fecha_ini_b, @fecha_fin_b
 
         create table #tmp_liquidacion(numero int)
 
@@ -131,7 +140,7 @@ def crear_script_cron_hab():
             ,res_fec_ing
         from ut_cob_resolucion_t 
         where (flg_rut_cliente=@rut_cliente or flg_rut_cliente=dbo.getpilotohabitat()  or flg_rut_cliente=dbo.getHabitatEspecial())
-        and res_periodo between {periodo_inicial} and {periodo_final}
+        and res_periodo between @periodo_ini and @periodo_fin
 
         select 'ut_cob_filehabitat_t', * from ut_cob_filehabitat_t
         select 'ut_cob_filehabitat_t', count(*) from ut_cob_filehabitat_t
@@ -139,8 +148,8 @@ def crear_script_cron_hab():
         /* in (
         select distinct flg_rut_deudor from ut_cob_gesdeudor_t where rut_cliente=98000100 and fec_gestion between '01-01-2019 00:00:00' and '15-01-2019 23:59:00')*/
 
-        --select convert(datetime,convert(varchar,{fecha_inicial}),101) , dateadd(hour,23,convert(date,convert(varchar,{fecha_final}),101) )
-        select {fecha_inicial}_b, {fecha_final}_b
+        --select convert(datetime,convert(varchar,@fecha_ini),101) , dateadd(hour,23,convert(date,convert(varchar,@fecha_fin),101) )
+        select @fecha_ini_b, @fecha_fin_b
 
 
 
@@ -187,7 +196,7 @@ def crear_script_cron_hab():
                                 where (rut_cliente=dbo.getHabitat() or rut_cliente=dbo.getPilotoHabitat() or rut_cliente=dbo.getHabitatEspecial())
                                 and rut_empleador=@NUMRUT
                                 and situacion_nueva IN ('CN','EI','PSR')
-                                and fec_insert between {fecha_inicial}_b and {fecha_final}_b)
+                                and fec_insert between @fecha_ini_b and @fecha_fin_b)
                             BEGIN
                         --select * from ut_dnpa_gestionllamada_t	
                     
@@ -197,7 +206,7 @@ def crear_script_cron_hab():
                                 where (rut_cliente=dbo.getHabitat() or rut_cliente=dbo.getPilotoHabitat() or rut_cliente=dbo.getHabitatEspecial())
                                 and rut_empleador=@NUMRUT
                                 and situacion_nueva IN ('CN','EI','PSR')
-                                and fec_insert between {fecha_inicial}_b and {fecha_final}_b
+                                and fec_insert between @fecha_ini_b and @fecha_fin_b
                                 /*
                                 select @fch_llamada = max(fch_llamada) 
                                 from ut_dnpa_gestionllamada_t 
@@ -281,7 +290,7 @@ def crear_script_cron_hab():
             select @max_ing = max(res_fec_ing) 
             from ut_cob_resolucion_t 
             where flg_rut_cliente=@rut_cliente
-            and res_periodo between {periodo_inicial} and {periodo_final}
+            and res_periodo between @periodo_ini and @periodo_fin
             */
         /*
             update ut_cob_filehabitat_t
@@ -370,7 +379,7 @@ def crear_script_cron_hab():
         from ut_cob_filehabitat_t order by NUMRUT, UNIDEU
         */
 
-        select {fecha_inicial} fecha_ini,  {fecha_final} fecha_fin
+        select @fecha_ini fecha_ini,  @fecha_fin fecha_fin
         --sp_help ut_cob_filehabitat_t
             select  
             TIPREG
@@ -444,7 +453,7 @@ def crear_script_cron_hab():
         ,FEC_ING
             
             from ut_cob_filehabitat_t
-        where feinac between {fecha_inicial} and {fecha_final}
+        where feinac between @fecha_ini and @fecha_fin
 
         select   right('0' + CONVERT(VARCHAR(1  ),ISNULL(TIPREG,0)),1)						
                 + right(REPLICATE('0', 7 ) + CONVERT(VARCHAR(7  ),isnull(NROENV,0)),7 )		
@@ -509,14 +518,13 @@ def crear_script_cron_hab():
                 + RIGHT(REPLICATE('0',2 ) + CONVERT(VARCHAR(2 ),ISNULL(ESPDEU,0 )),2 )		
                 + LEFT(ISNULL(TIPREN,'')  + REPLICATE(' ',2),2)	 linea								
         from ut_cob_filehabitat_t 
-        where feinac between {fecha_inicial} and {fecha_final}
+        where feinac between @fecha_ini and @fecha_fin
 
 
         order by NUMRUT, UNIDEU
 
         drop table #tmp_liquidacion
-
-    """
+"""
     logging.warning(os.getcwd())
     script = str(sqlparse.format(script, reindent=False, keyword_case='upper'))
 
@@ -535,11 +543,9 @@ with DAG(
     schedule_interval=None,
     max_active_runs=1,
     concurrency=4,
-    tags=["informes", "sql server"],
+    tags=["cronologias", "sql server"],
 ) as dag:
     
-
-
     crear_sql_script_hab = PythonOperator(
         task_id="crear_script_cron_hab", 
         python_callable=crear_script_cron_hab

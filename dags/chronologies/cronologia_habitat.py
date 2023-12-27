@@ -122,17 +122,17 @@ with DAG(
 ) as dag:
     
     ejecutar_script = PythonOperator(
-        task_id="crear_script_cron_hab", 
+        task_id="ejecutar_procedimiento", 
         python_callable=ejecutar_procedimiento
     )
 
     obtener_datos_db = PythonOperator(
-        task_id="crear_script_cron_hab", 
+        task_id="obtener_datos", 
         python_callable=obtener_datos
     )
 
     borrar_tablas = PythonOperator(
-        task_id="crear_script_cron_hab", 
+        task_id="drop_tables", 
         python_callable=drop_tables
     )
     

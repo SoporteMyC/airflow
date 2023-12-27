@@ -4,16 +4,28 @@ from airflow.models import DAG
 from airflow.utils.dates import timedelta, days_ago
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
-from airflow.providers.microsoft.mssql.operators.mssql import MsSqlOperator
 from airflow.models import Variable
 import datetime
 from dateutil.relativedelta import relativedelta
-import sqlparse
 import os 
+import time
 
 warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)
 
+hoy  = datetime.datetime.now()
+if hoy.day <= 15:
+    fecha_inicial = f'{hoy.year}{hoy.month}01'
+else:
+    fecha_inicial = f'{hoy.year}{hoy.month}16'
+
+today = datetime.date.today()
+first = today.replace(day=1)
+
+periodo_inicial = (first - relativedelta(months=+5)).strftime("%Y%m")
+periodo_final = (first - relativedelta(months=+2)).strftime("%Y%m") 
+
+fecha_final = hoy.strftime("%Y%m%d")
 
 try:
     database = Variable.get("current_database")
@@ -32,27 +44,11 @@ default_args = {
     "execution_timeout": timedelta(seconds=1800),
 }
 
-def crear_script_cron_hab():
+def ejecutar_procedimiento():
 
-    nombre_archivo_sql = "cronologia_habitat.sql"
-
-
-    hoy  = datetime.datetime.now()
-    if hoy.day <= 15:
-        fecha_inicial = f'{hoy.year}{hoy.month}01'
-    else:
-        fecha_inicial = f'{hoy.year}{hoy.month}16'
-
-    today = datetime.date.today()
-    first = today.replace(day=1)
-
-    periodo_inicial = (first - relativedelta(months=+5)).strftime("%Y%m")
-    periodo_final = (first - relativedelta(months=+2)).strftime("%Y%m") 
-
-    fecha_final = hoy.strftime("%Y%m%d")
     query1 = f"""
         USE WEBCOB
-        
+
         DECLARE @rut_cliente int
         declare @fecha_ini int
         declare @fecha_fin int
@@ -78,21 +74,35 @@ def crear_script_cron_hab():
     except Exception as e:
         logging.error(e)
 
-    try:
-        df = hook.get_pandas_df("SELECT * FROM WEBCOB.dbo.CRON_HAB_TXT_AUTO")
-    except Exception as e:
-        logging.error(e)
+
+def obtener_datos():
+
+    
+    hook = MsSqlHook(mssql_conn_id=database)
+    contador = 0
+    while(contador < 13):
+        time.sleep(300)
+        try:
+            df = hook.get_pandas_df("SELECT * FROM WEBCOB.dbo.CRON_HAB_TXT_AUTO")
+            file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.txt")
+            df.tO_csv(file_path, sep=" ")
+        except Exception as e:
+            logging.error(e)
+
+        try:
+            df = hook.get_pandas_df("SELECT * FROM WEBCOB.dbo.CRON_HAB_XLSX_AUTO")
+            file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.xlsx")
+            df.to_excel(file_path)
+        except Exception as e:
+            logging.error(e)
+        contador += 1
+
+def drop_tables():
+
+    hook = MsSqlHook(mssql_conn_id=database)
 
     try:
-        df = hook.get_pandas_df("SELECT * WEBCOB.dbo.FROM CRON_HAB_XLSX_AUTO")
-        file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.xlsx")
-        df.to_excel(file_path)
-    except Exception as e:
-        logging.error(e)
-    try:
         df = hook.run("DROP TABLE WEBCOB.dbo.CRON_HAB_TXT_AUTO", autocommit=True)
-        file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.txt")
-        df.tO_csv(file_path, sep=" ")
     except Exception as e:
         logging.error(e)
 
@@ -100,8 +110,6 @@ def crear_script_cron_hab():
         df = hook.run("DROP TABLE WEBCOB.dbo.CRON_HAB_XLSX_AUTO", autocommit=True)
     except Exception as e:
         logging.error(e)
-
-
 
 with DAG(
     "crear_cronologia_habitat",
@@ -113,9 +121,20 @@ with DAG(
     tags=["cronologias", "sql server"],
 ) as dag:
     
-    crear_sql_script_hab = PythonOperator(
+    ejecutar_script = PythonOperator(
         task_id="crear_script_cron_hab", 
-        python_callable=crear_script_cron_hab
+        python_callable=ejecutar_procedimiento
     )
-   
+
+    obtener_datos_db = PythonOperator(
+        task_id="crear_script_cron_hab", 
+        python_callable=obtener_datos
+    )
+
+    borrar_tablas = PythonOperator(
+        task_id="crear_script_cron_hab", 
+        python_callable=drop_tables
+    )
+    
+    ejecutar_script >> obtener_datos_db >> borrar_tablas
    

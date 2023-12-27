@@ -52,6 +52,7 @@ def crear_script_cron_hab():
     fecha_final = hoy.strftime("%Y%m%d")
     script =   f"""
         set dateformat dmy
+        DECLARE @rut_cliente int
         declare @UNIDEU numeric(13)
         declare @PERCOT numeric(6)
         declare @NUMRUT numeric(9)

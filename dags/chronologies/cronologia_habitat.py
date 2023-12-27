@@ -51,6 +51,8 @@ def crear_script_cron_hab():
 
     fecha_final = hoy.strftime("%Y%m%d")
     query1 = f"""
+        USE WEBCOB
+        
         DECLARE @rut_cliente int
         declare @fecha_ini int
         declare @fecha_fin int
@@ -77,25 +79,25 @@ def crear_script_cron_hab():
         logging.error(e)
 
     try:
-        df = hook.get_pandas_df("SELECT * FROM CRON_HAB_TXT_AUTO")
+        df = hook.get_pandas_df("SELECT * FROM WEBCOB.dbo.CRON_HAB_TXT_AUTO")
     except Exception as e:
         logging.error(e)
 
     try:
-        df = hook.get_pandas_df("SELECT * FROM CRON_HAB_XLSX_AUTO")
+        df = hook.get_pandas_df("SELECT * WEBCOB.dbo.FROM CRON_HAB_XLSX_AUTO")
         file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.xlsx")
         df.to_excel(file_path)
     except Exception as e:
         logging.error(e)
     try:
-        df = hook.run("DROP TABLE CRON_HAB_TXT_AUTO", autocommit=True)
+        df = hook.run("DROP TABLE WEBCOB.dbo.CRON_HAB_TXT_AUTO", autocommit=True)
         file_path = os.path.join("output", "chronologies", f"cronologia_hab_{fecha_final}.txt")
         df.tO_csv(file_path, sep=" ")
     except Exception as e:
         logging.error(e)
 
     try:
-        df = hook.run("DROP TABLE CRON_HAB_XLSX_AUTO", autocommit=True)
+        df = hook.run("DROP TABLE WEBCOB.dbo.CRON_HAB_XLSX_AUTO", autocommit=True)
     except Exception as e:
         logging.error(e)
 

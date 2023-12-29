@@ -61,7 +61,7 @@ def crear_sql_hab(**kwargs):
 
     script_habitat = f"""
         use webcob
-        
+
         select getdate()
 
         declare @rut_cliente int
@@ -342,7 +342,7 @@ def crear_sql_hab(**kwargs):
             Nombre NVARCHAR(50),
             Edad INT
         );
-        ----
+
         print '*** 01.1 INSERTA PERIODOS ***'	
 
         declare @periodo_1 int
@@ -1229,21 +1229,14 @@ def drop_temp_tables():
 def ejecutar_script_hab():
     fd = open('dags/reports/queries/info_estados_hab.sql', 'r')
     sqlFile = fd.read()
-    scripts = sqlFile.split("----")
     fd.close()
 
     logging.info(sqlFile)
     hook = MsSqlHook(mssql_conn_id=database)
     
     try:
-        logging.info("Ejecutando Script 1")
-        hook.run(scripts[0], autocommit=True)
-    except Exception as e:
-        logging.error(e)
-
-    try:
-        logging.info("Ejecutando Script 2")
-        hook.run(scripts[1], autocommit=True)
+        hook.run(sqlFile)
+        hook.
     except Exception as e:
         logging.error(e)
 
@@ -1277,7 +1270,6 @@ with DAG(
     ejecuta_script_hab = PythonOperator(
         task_id="ejecutar_script_hab", 
         python_callable=ejecutar_script_hab,
-        
     )
 
     """create_hab_table = MsSqlOperator(

@@ -491,6 +491,12 @@ def crear_sql_hab(**kwargs):
         declare @rut_cliente2 int
         set @rut_cliente2=dbo.getpilotohabitat()
 
+        CREATE TABLE webcob.dbo.prueba21 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
+
         if exists (select 1 from #tmp_cliente where rut_cliente=dbo.getpilotohabitat())
         begin
 
@@ -520,6 +526,12 @@ def crear_sql_hab(**kwargs):
             set rut_ejecutiva_1 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente2 and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1)
             where #tmp_reso.situacion iN ('PAD','PSR')
             and periodo=@periodo_2
+
+            CREATE TABLE webcob.dbo.prueba22 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+            );
 
             update #tmp_reso 
             set rut_ejecutiva_0 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente2 and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0)

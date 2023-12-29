@@ -379,26 +379,16 @@ def crear_sql_hab(**kwargs):
             select sum(monto), count(*) from #tmp_reso where periodo=@periodo
         END
 
-        CREATE TABLE webcob.dbo.prueba17 (
-            ID INT PRIMARY KEY,
-            Nombre NVARCHAR(50),
-            Edad INT
-        );
+        
+
+        select distinct rut  from #tmp_reso
+
+        select 'ut_cob_est_gestion_t', * from ut_cob_est_gestion_t order by 1,2
 
 
-            CREATE TABLE webcob.dbo.prueba181 (
-            ID INT PRIMARY KEY,
-            Nombre NVARCHAR(50),
-            Edad INT
-        );
-
+        print '*** 03 ACTUALIZA EJECUTIVAS***'	
+        print getdate()		
         select @maxFecha maxFecha
-
-        CREATE TABLE webcob.dbo.prueba18 (
-            ID INT PRIMARY KEY,
-            Nombre NVARCHAR(50),
-            Edad INT
-        );
 
         update #tmp_reso
         set rut_ejecutiva_0 = (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatos(@rut_cliente,#tmp_reso.rut))
@@ -415,12 +405,6 @@ def crear_sql_hab(**kwargs):
         set rut_ejecutiva_1 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,1))
         where isnull(rut_ejecutiva_1,0)=0
 
-
-        CREATE TABLE webcob.dbo.prueba19 (
-            ID INT PRIMARY KEY,
-            Nombre NVARCHAR(50),
-            Edad INT
-        );
 
         update #tmp_reso
         set rut_ejecutiva_2 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,2))
@@ -491,12 +475,6 @@ def crear_sql_hab(**kwargs):
         declare @rut_cliente2 int
         set @rut_cliente2=dbo.getpilotohabitat()
 
-        CREATE TABLE webcob.dbo.prueba21 (
-            ID INT PRIMARY KEY,
-            Nombre NVARCHAR(50),
-            Edad INT
-        );
-
         if exists (select 1 from #tmp_cliente where rut_cliente=dbo.getpilotohabitat())
         begin
 
@@ -526,12 +504,6 @@ def crear_sql_hab(**kwargs):
             set rut_ejecutiva_1 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente2 and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_1)
             where #tmp_reso.situacion iN ('PAD','PSR')
             and periodo=@periodo_2
-
-            CREATE TABLE webcob.dbo.prueba22 (
-            ID INT PRIMARY KEY,
-            Nombre NVARCHAR(50),
-            Edad INT
-            );
 
             update #tmp_reso 
             set rut_ejecutiva_0 = isnull((select top 1 d.usr_rut from ut_cob_desistidosUsuario_t d where d.rut_cliente=@rut_cliente2 and d.rut_deudor=#tmp_reso.rut and d.res_periodo=#tmp_reso.periodo),rut_ejecutiva_0)
@@ -1294,19 +1266,19 @@ with DAG(
         op_kwargs={'cliente': 'PRO'}
     )'''
 
-    ejecuta_script_hab = PythonOperator(
+    """ejecuta_script_hab = PythonOperator(
         task_id="ejecutar_script_hab", 
         python_callable=ejecutar_script_hab,
     )
-
-    """create_hab_table = MsSqlOperator(
+"""
+    create_hab_table = MsSqlOperator(
         task_id="crear_tabla_informe_hab",
         mssql_conn_id=database,
         sql="queries/info_estados_hab.sql",
         split_statements=False,
         autocommit=True,
         dag=dag
-    )"""
+    )
 
     '''create_pro_table = MsSqlOperator(
         task_id="crear_tabla_informe_pro",
@@ -1317,8 +1289,8 @@ with DAG(
 
 
     
-    #drop_temporary_tables >> crear_sql_script_hab >> create_hab_table
-    crear_sql_script_hab >> ejecuta_script_hab
+    drop_temporary_tables >> crear_sql_script_hab >> create_hab_table
+    #crear_sql_script_hab >> ejecuta_script_hab
      #>> create_hab_table
     #crear_sql_script_pro #>> create_pro_table
 

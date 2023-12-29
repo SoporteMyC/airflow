@@ -390,9 +390,12 @@ def crear_sql_hab(**kwargs):
 
         select 'ut_cob_est_gestion_t', * from ut_cob_est_gestion_t order by 1,2
 
+            CREATE TABLE webcob.dbo.prueba181 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
 
-        print '*** 03 ACTUALIZA EJECUTIVAS***'	
-        print getdate()		
         select @maxFecha maxFecha
 
         CREATE TABLE webcob.dbo.prueba18 (

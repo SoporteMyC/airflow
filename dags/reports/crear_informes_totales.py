@@ -395,6 +395,12 @@ def crear_sql_hab(**kwargs):
         print getdate()		
         select @maxFecha maxFecha
 
+        CREATE TABLE webcob.dbo.prueba18 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
+
         update #tmp_reso
         set rut_ejecutiva_0 = (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatos(@rut_cliente,#tmp_reso.rut))
         where isnull(rut_ejecutiva_0,0)=0
@@ -410,6 +416,12 @@ def crear_sql_hab(**kwargs):
         set rut_ejecutiva_1 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,1))
         where isnull(rut_ejecutiva_1,0)=0
 
+
+        CREATE TABLE webcob.dbo.prueba19 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
 
         update #tmp_reso
         set rut_ejecutiva_2 =  (select rut_usuario from webcob.dbo.EjecutivaDeudorxRutDatosDistAnte(@rut_cliente,#tmp_reso.rut,2))

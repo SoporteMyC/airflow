@@ -379,6 +379,11 @@ def crear_sql_hab(**kwargs):
             select sum(monto), count(*) from #tmp_reso where periodo=@periodo
         END
 
+        CREATE TABLE webcob.dbo.prueba17 (
+            ID INT PRIMARY KEY,
+            Nombre NVARCHAR(50),
+            Edad INT
+        );
 
 
         select distinct rut  from #tmp_reso

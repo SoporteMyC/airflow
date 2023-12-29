@@ -386,8 +386,6 @@ def crear_sql_hab(**kwargs):
         );
 
 
-        select distinct rut  from #tmp_reso
-
             CREATE TABLE webcob.dbo.prueba181 (
             ID INT PRIMARY KEY,
             Nombre NVARCHAR(50),

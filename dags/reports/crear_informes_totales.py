@@ -1235,8 +1235,8 @@ def ejecutar_script_hab():
     hook = MsSqlHook(mssql_conn_id=database)
     
     try:
-        hook.run(sqlFile)
-        hook.
+        result = hook.run(sqlFile)
+        logging.info(result)
     except Exception as e:
         logging.error(e)
 

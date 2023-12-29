@@ -1229,7 +1229,7 @@ def drop_temp_tables():
 def ejecutar_script_hab():
     fd = open('dags/reports/queries/info_estados_hab.sql', 'r')
     sqlFile = fd.read()
-    scripts = sqlFile.split("---")
+    scripts = sqlFile.split("----")
     fd.close()
 
     logging.info(sqlFile)

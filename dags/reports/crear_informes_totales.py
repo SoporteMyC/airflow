@@ -388,8 +388,6 @@ def crear_sql_hab(**kwargs):
 
         select distinct rut  from #tmp_reso
 
-        select 'ut_cob_est_gestion_t', * from ut_cob_est_gestion_t order by 1,2
-
             CREATE TABLE webcob.dbo.prueba181 (
             ID INT PRIMARY KEY,
             Nombre NVARCHAR(50),

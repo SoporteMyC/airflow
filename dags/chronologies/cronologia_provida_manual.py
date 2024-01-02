@@ -24,19 +24,17 @@ today = datetime.date.today()
 first = today.replace(day=1)
 day_before = today - timedelta(days=1)
 
-periodo_inicial = (first - relativedelta(months=+5)).strftime("%Y%m")
-periodo_final = (first - relativedelta(months=+2)).strftime("%Y%m") 
-
-fecha_final = hoy.strftime("%Y%m%d")
+fecha = f"{day_before.year}-{day_before.month}-{day_before.day}"
+periodo = f"{day_before.year}{day_before.month}"
 
 query1 = f"""
     USE WEBCOB
 
     declare @fecha date
 
-    set @fecha= '{day_before.year}-{day_before.month}-{day_before.day}'
+    set @fecha= '{fecha}'
 
-    exec CRONOLOGIA_{day_before.year}{day_before.month}_CAR @fecha
+    exec CRONOLOGIA_{periodo}_CAR @fecha
 
     """
 query2 = f"""
@@ -44,9 +42,9 @@ query2 = f"""
 
     declare @fecha date
 
-    set @fecha= '{day_before.year}-{day_before.month}-{day_before.day}'
+    set @fecha= '{fecha}'
 
-    exec CRONOLOGIA_{day_before.year}{day_before.month}_DNP @fecha
+    exec CRONOLOGIA_{periodo}_DNP @fecha
 
     """
 

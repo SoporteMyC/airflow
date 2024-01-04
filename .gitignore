@@ -10,3 +10,4 @@ dag_processor_manager
 __pycache__
 venv
 logs
+query-test.sql

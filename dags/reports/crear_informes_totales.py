@@ -1192,12 +1192,18 @@ def crear_sql_hab(**kwargs):
     script_habitat = str(sqlparse.format(script_habitat, reindent=False, keyword_case='upper'))
 
     ruta_archivo = os.path.join("dags", "reports", "queries", nombre_archivo_sql)
-
+    ruta_archivo2 = os.path.join('/', 'mnt', 'servidor_nuevo', 'Scripts_Airflow', nombre_archivo_sql)
     try:
         with open(ruta_archivo, "w") as archivo_sql:
             archivo_sql.write(script_habitat)
     except Exception as e:
         logging.error(e)
+
+    try:
+        with open(ruta_archivo2, "w") as archivo_sql:
+            archivo_sql.write(script_habitat)
+    except Exception as e:
+        logging.error(f'Error al guardar el archivo: {e}')
 
 
 def drop_temp_tables():
@@ -1234,17 +1240,15 @@ def ejecutar_script_hab():
     logging.info(sqlFile)
     hook = MsSqlHook(mssql_conn_id=database)
     
-    try:
-        result = hook.run(sqlFile)
-        logging.info(result)
-    except Exception as e:
-        logging.error(e)
+    result = hook.run(sqlFile)
+    logging.info(result)
+    logging.warning("Todo bien?")
 
 with DAG(
     "crear_informes_totales",
     default_args=default_args,
     description="crea el script sql de informe total con fechas actualizadas.",
-    schedule_interval="00 7 * * *  ",
+    schedule_interval=None,
     max_active_runs=1,
     concurrency=4,
     tags=["informes", "sql server"],
@@ -1267,19 +1271,19 @@ with DAG(
         op_kwargs={'cliente': 'PRO'}
     )'''
 
-    ejecuta_script_hab = PythonOperator(
+    '''ejecuta_script_hab = PythonOperator(
         task_id="ejecutar_script_hab", 
         python_callable=ejecutar_script_hab,
-    )
+    )'''
 
-    """create_hab_table = MsSqlOperator(
+    create_hab_table = MsSqlOperator(
         task_id="crear_tabla_informe_hab",
         mssql_conn_id=database,
         sql="queries/info_estados_hab.sql",
         split_statements=False,
         autocommit=True,
         dag=dag
-    )"""
+    )
 
     '''create_pro_table = MsSqlOperator(
         task_id="crear_tabla_informe_pro",
@@ -1290,8 +1294,8 @@ with DAG(
 
 
     
-    #drop_temporary_tables >> crear_sql_script_hab >> create_hab_table
-    drop_temporary_tables >> crear_sql_script_hab >> ejecuta_script_hab
+    drop_temporary_tables >> crear_sql_script_hab >> create_hab_table
+    #drop_temporary_tables >> crear_sql_script_hab >> ejecuta_script_hab
      #>> create_hab_table
     #crear_sql_script_pro #>> create_pro_table
 

@@ -24,8 +24,18 @@ today = datetime.date.today()
 first = today.replace(day=1)
 day_before = today - timedelta(days=1)
 
-fecha = f"{day_before.year}-{day_before.month}-{day_before.day}"
-periodo = f"{day_before.year}{day_before.month}"
+def mes_string(mes):
+    if mes <= 9:
+        return f'0{mes}'
+    else:
+        return str(mes)
+
+mes = mes_string(day_before.month)
+
+fecha = f"{day_before.year}-{mes}-{day_before.day}"
+periodo = f"{day_before.year}{mes}"
+
+
 
 query1 = f"""
     USE WEBCOB
